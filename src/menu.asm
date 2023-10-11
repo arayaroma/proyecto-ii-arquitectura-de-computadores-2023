@@ -1,55 +1,67 @@
+public printMenu, clearScreen
 .model small
-.stack 100H
-.data
-    titleText db 'Endless Runners', 10, 13, '$'
-    playText db 'Play', 10, 13, '$'
-    row db ?
-    col db ?
 
-printMessage macro message
-    mov ah, 09H
-    lea dx, message
-    int 21H
-endm
+.data
+titleText db '[Endless Runners]', '$'
+playText db 'Play', '$'
+stageText db 'Stage', '$'
+aboutText db 'About', '$'
+
+axisYOffset db ?
+axisXOffset db ?
+
+cursorRow db ?
+cursorCol db ?
 
 waitEvent macro
     mov ah, 00H
     int 16H
 endm
 
+printMessage macro msg
+    mov ah, 09H
+    lea dx, msg
+    int 21H
+endm
+setMousePosition macro x, y 
+    mov ah, 02H
+    mov bh, 00H
+    mov dh, x
+    mov dl, y
+    int 10H
+endm
+
 .code
 
-;function to set cursor position
-public pos
-pos proc 
-    mov ah, 02H
-    mov bh, 00h
-    mov dh, col
-    mov dl, row
-    int 10H
-    ret
-pos endp
-
-public clearScreen
-clearScreen proc
+clearScreen proc far
     mov ax, 0600H
-    mov bh, 17H
+    mov bh, 00H
     mov cx, 0000H
     mov dx, 184FH
-    int 10h
+    int 10H
     ret
 clearScreen endp
 
-public printMenu
 printMenu proc far
-    call clearScreen
-    waitEvent
-    mov row, 0
-    mov col, 0
-    call pos
+
+    mov axisXOffset, 8
+    mov axisYOffset, 31
+
+    setMousePosition axisXOffset, axisYOffset
     printMessage titleText
-    waitEvent
+
+    add axisXOffset, 3
+    add axisYOffset, 6
+    setMousePosition axisXOffset, axisYOffset
+    printMessage playText
+
+    add axisXOffset, 3
+    setMousePosition axisXOffset, axisYOffset
+    printMessage stageText
+
+    add axisXOffset, 3
+    setMousePosition axisXOffset, axisYOffset
+    printMessage aboutText
     ret
 printMenu endp
-
 end
