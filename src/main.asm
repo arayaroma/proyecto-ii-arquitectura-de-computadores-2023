@@ -1,9 +1,8 @@
-extrn setVideoMode:far
-extrn printMenu:far
-extrn clearScreen:far
-
+.8086
 .model small
 .stack 100H     
+extrn menuDriver:far
+
 .data
 
 exit macro 
@@ -11,13 +10,11 @@ exit macro
    int 21H
 endm
 
-.code
+.code 
    mov ax, @DATA            
    mov ds, ax 
-                     
-   call setVideoMode
-   call clearScreen
-   call printMenu
+
+   call menuDriver
    exit
 
 end

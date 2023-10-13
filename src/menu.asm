@@ -1,17 +1,25 @@
-public printMenu, clearScreen
+.8086
 .model small
+public menuDriver
+extrn clearScreen:far
+extrn setVideoMode:far
+extrn getMousePosition:far
+extrn ShowMouse:far
+
+extrn mouseX:byte
+extrn mouseY:byte
 
 .data
+
 titleText db '[Endless Runners]', '$'
 playText db 'Play', '$'
 stageText db 'Stage', '$'
 aboutText db 'About', '$'
 
+
 axisYOffset db ?
 axisXOffset db ?
 
-cursorRow db ?
-cursorCol db ?
 
 waitEvent macro
     mov ah, 00H
@@ -23,6 +31,8 @@ printMessage macro msg
     lea dx, msg
     int 21H
 endm
+
+; setMouseCursor macro
 setMousePosition macro x, y 
     mov ah, 02H
     mov bh, 00H
@@ -33,25 +43,15 @@ endm
 
 .code
 
-clearScreen proc far
-    mov ax, 0600H
-    mov bh, 00H
-    mov cx, 0000H
-    mov dx, 184FH
-    int 10H
-    ret
-clearScreen endp
-
 printMenu proc far
-
     mov axisXOffset, 8
     mov axisYOffset, 31
 
     setMousePosition axisXOffset, axisYOffset
     printMessage titleText
 
-    add axisXOffset, 3
     add axisYOffset, 6
+    add axisXOffset, 3
     setMousePosition axisXOffset, axisYOffset
     printMessage playText
 
@@ -62,6 +62,16 @@ printMenu proc far
     add axisXOffset, 3
     setMousePosition axisXOffset, axisYOffset
     printMessage aboutText
+
     ret
 printMenu endp
+
+menuDriver proc far
+    call setVideoMode
+    call clearScreen
+    call printMenu
+    call ShowMouse
+
+menuDriver endp
+
 end
