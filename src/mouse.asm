@@ -1,14 +1,12 @@
 .8086
 .model small
-public ShowMouse, HideMouse, getMousePosition, mouseX, mouseY
+public ShowMouse, HideMouse, SetMousePosition, GetMousePosition, mouseX, mouseY, mouseXText, mouseYText
 
 .data
-
-mouseX db 2 dup(0)
-mouseY db 2 dup(0)
-
-isLeftButtonPressed db ?
-isRightButtonPressed db ?
+mouseXText db "Mouse X: ", '$'
+mouseYText db "Mouse Y: ", '$'
+mouseX dw 0
+mouseY dw 0
 
 .code
 
@@ -44,48 +42,26 @@ HideMouse endp
 ; (0) left button (1 = pressed)
 ; (1) right button (1 = pressed)
 ; (2-8) unused
-getMousePosition proc far
+GetMousePosition proc far
     mov ax, 03H
     int 33H
-
-    push ax
-    call ConvertToAscii
-    mov si, offset mouseX 
-    pop ax
-    mov cx, ax
-    call DisplayCoordinate
-
-    push dx
-    call ConvertToAscii
-    mov si, offset mouseY   
-    pop dx
-    mov cx, dx
-    call DisplayCoordinate
+    mov [mouseX], cx
+    mov [mouseY], dx
     ret
-getMousePosition endp
+GetMousePosition endp
 
-ConvertToAscii proc
-    push bx cx dx
-    mov bx, 10
-    xor cx, cx
-divLoop:
-    div bx
-    add dl, '0'
-    dec si
-    mov [si], dl
-    test ax, ax
-    jnz divLoop
-    pop dx cx bx
+; setMousePosition
+;
+; int 10H 
+; ax = 02H
+; bx = 00H
+; dh = x position
+; dl = y position
+SetMousePosition proc far
+    mov ah, 02H
+    mov bh, 00H
+    int 10H
     ret
-ConvertToAscii endp
-
-DisplayCoordinate proc
-    push ax dx
-    mov ah, 09H
-    mov dx, si
-    int 21H
-    pop dx ax
-    ret
-DisplayCoordinate endp
+SetMousePosition endp
 
 end
