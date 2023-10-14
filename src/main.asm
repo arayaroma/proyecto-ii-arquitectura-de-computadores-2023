@@ -1,7 +1,7 @@
 .8086
 .model small
 .stack 100H     
-extrn menuDriver:far
+extrn MenuDriver:far
 
 .data
 
@@ -14,7 +14,7 @@ endm
    mov ax, @DATA            
    mov ds, ax 
 
-   call menuDriver
+   call MenuDriver
    exit
 
 end
