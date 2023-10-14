@@ -1,13 +1,24 @@
 .8086
 .model small
-public menuDriver
-extrn clearScreen:far
-extrn setVideoMode:far
-extrn getMousePosition:far
-extrn ShowMouse:far
+public MenuDriver
 
-extrn mouseX:byte
-extrn mouseY:byte
+; graphics.asm
+extrn ClearScreen:far
+extrn SetVideoMode:far
+extrn PrintMessage:far
+
+; ascii.asm
+extrn ConvertToASCII:far
+extrn DisplayASCII:far
+
+; mouse.asm
+extrn GetMousePosition:far
+extrn SetMousePosition:far
+extrn ShowMouse:far
+extrn mouseXText:byte
+extrn mouseYText:byte
+extrn mouseX:word
+extrn mouseY:word
 
 .data
 
@@ -16,62 +27,113 @@ playText db 'Play', '$'
 stageText db 'Stage', '$'
 aboutText db 'About', '$'
 
-
 axisYOffset db ?
 axisXOffset db ?
 
-
-waitEvent macro
-    mov ah, 00H
-    int 16H
-endm
-
-printMessage macro msg
-    mov ah, 09H
-    lea dx, msg
-    int 21H
-endm
-
-; setMouseCursor macro
-setMousePosition macro x, y 
-    mov ah, 02H
-    mov bh, 00H
-    mov dh, x
-    mov dl, y
-    int 10H
-endm
-
 .code
 
-printMenu proc far
+; PrintMenu
+;
+; This procedure will print the menu on the screen.
+PrintMenu proc far
     mov axisXOffset, 8
     mov axisYOffset, 31
 
-    setMousePosition axisXOffset, axisYOffset
-    printMessage titleText
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+
+    mov dx, offset titleText 
+    call PrintMessage
 
     add axisYOffset, 6
     add axisXOffset, 3
-    setMousePosition axisXOffset, axisYOffset
-    printMessage playText
+
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+
+    mov dx, offset playText
+    call PrintMessage
 
     add axisXOffset, 3
-    setMousePosition axisXOffset, axisYOffset
-    printMessage stageText
+
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+
+    mov dx, offset stageText
+    call PrintMessage
 
     add axisXOffset, 3
-    setMousePosition axisXOffset, axisYOffset
-    printMessage aboutText
 
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+
+    mov dx, offset aboutText
+    call PrintMessage
     ret
-printMenu endp
+PrintMenu endp
 
-menuDriver proc far
-    call setVideoMode
-    call clearScreen
-    call printMenu
+; LoadMouseText
+;
+; This procedure will load the mouse text on the screen.
+LoadMouseText proc near
+    mov dh, 0
+    mov dl, 0
+    call SetMousePosition
+
+    mov dx, offset mouseXText
+    call PrintMessage 
+
+    mov dh, 1
+    mov dl, 0
+    call SetMousePosition
+
+    mov dx, offset mouseYText
+    call PrintMessage 
+    ret
+LoadMouseText endp
+
+; MouseCoordinatesLoop
+;
+; This procedure will loop forever and display the
+; mouse coordinates on the screen.
+MouseCoordinatesLoop proc near
+    mouseLoop:
+    mov dh, 0
+    mov dl, 8
+    call SetMousePosition
+    xor dx, dx
+    call GetMousePosition
+    mov ax, [mouseX]
+    call ConvertToASCII
+
+    mov dh, 1
+    mov dl, 8
+    call SetMousePosition
+    xor dx, dx
+    call GetMousePosition
+    mov ax, [mouseY]
+    call ConvertToASCII
+    jmp mouseLoop
+    ret
+MouseCoordinatesLoop endp
+
+; MenuDriver
+;
+; This procedure is the main driver for the menu.
+; It will call all the other procedures to display
+; the menu and handle the mouse.
+MenuDriver proc far
+    call SetVideoMode
     call ShowMouse
-
-menuDriver endp
+    call ClearScreen
+    call PrintMenu
+    call LoadMouseText
+    call MouseCoordinatesLoop
+    ret
+MenuDriver endp
 
 end
