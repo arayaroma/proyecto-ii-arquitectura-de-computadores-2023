@@ -1,22 +1,44 @@
 .8086
 .model small
-public setVideoMode, clearScreen
+public SetVideoMode, ClearScreen, PrintMessage
+
 .code
 
-;  640x480 16-color VGA graphics mode
-setVideoMode proc far
+;   SetVideoMode
+;
+;   Sets the video mode to 16-color VGA 640x480
+;   Input: none
+;   Output: none
+SetVideoMode proc far
     mov ax, 0012H
     int 10h
     ret
-setVideoMode endp
+SetVideoMode endp
 
-clearScreen proc far
+
+;   ClearScreen
+;
+;   Clears the screen
+;   Input: none
+;   Output: none
+ClearScreen proc far
     mov ax, 0600H
     mov bh, 00H
     mov cx, 0000H
     mov dx, 184FH
     int 10H
     ret
-clearScreen endp
+ClearScreen endp
+
+;   PrintMessage
+;
+;   Prints a message to the screen
+;   Input: DS:DX -> message
+;   Output: none
+PrintMessage proc far
+    mov ah, 09H
+    int 21H
+    ret
+PrintMessage endp
 
 end
