@@ -3,6 +3,7 @@ del target\*.* /Q
 
 :: assemble the files
 bin\tasm /z src\main.asm
+bin\tasm /z src\ascii.asm
 bin\tasm /z src\graphics.asm
 bin\tasm /z src\menu.asm
 bin\tasm /z src\mouse.asm
@@ -12,7 +13,7 @@ copy *.obj target
 del *.obj
 
 :: link the files
-bin\tlink target\main.obj target\graphics.obj target\menu.obj target\mouse.obj
+bin\tlink target\main.obj target\ascii.obj target\graphics.obj target\menu.obj target\mouse.obj
 
 pause
 
