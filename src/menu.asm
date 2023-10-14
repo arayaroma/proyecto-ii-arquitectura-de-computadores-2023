@@ -6,6 +6,7 @@ public MenuDriver
 extrn ClearScreen:far
 extrn SetVideoMode:far
 extrn PrintMessage:far
+extrn board:far
 
 ; ascii.asm
 extrn ConvertToASCII:far
@@ -131,6 +132,7 @@ MenuDriver proc far
     call ShowMouse
     call ClearScreen
     call PrintMenu
+    ;call board
     call LoadMouseText
     call MouseCoordinatesLoop
     ret

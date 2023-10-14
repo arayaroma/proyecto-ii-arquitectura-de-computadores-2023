@@ -1,5 +1,3 @@
-public printPoint, waitEvent
-
 waitEvent macro
     mov ah, 00H ; wait for keypress
     int 16H 
