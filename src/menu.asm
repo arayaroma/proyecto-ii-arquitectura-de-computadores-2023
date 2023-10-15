@@ -3,13 +3,12 @@
 ;
 .8086
 .model small
-public MenuDriver
+public MenuDriver, text_x1, text_y1, text_x2, text_y2
 
 ; graphics.asm
 extrn ClearScreen:far
 extrn SetVideoMode:far
 extrn PrintMessage:far
-extrn IsMouseIn:far
 
 ; board.asm
 extrn board:far
@@ -22,6 +21,7 @@ extrn DisplayASCII:far
 extrn GetMousePosition:far
 extrn SetMousePosition:far
 extrn ShowMouse:far
+extrn IsMouseIn:far
 extrn mouseXText:byte
 extrn mouseYText:byte
 extrn mouseX:word
@@ -34,6 +34,11 @@ playText db 'Play', '$'
 scoreboardText db 'Scoreboard', '$'
 aboutText db 'About', '$'
 
+text_x1 dw ?
+text_y1 dw ?
+text_x2 dw ?
+text_y2 dw ?
+
 axisYOffset db ?
 axisXOffset db ?
 
@@ -42,6 +47,7 @@ axisXOffset db ?
 ; PrintMenu
 ;
 ; This procedure will print the menu on the screen.
+;
 PrintMenu proc far
     mov axisXOffset, 8
     mov axisYOffset, 31
@@ -87,6 +93,7 @@ PrintMenu endp
 ; LoadMouseText
 ;
 ; This procedure will load the mouse text on the screen.
+;
 LoadMouseText proc near
     mov dh, 0
     mov dl, 0
@@ -108,8 +115,8 @@ LoadMouseText endp
 ;
 ; This procedure will loop forever and display the
 ; mouse coordinates on the screen.
+;
 MouseCoordinatesLoop proc near
-    mouseLoop:
     mov dh, 0
     mov dl, 8
     call SetMousePosition
@@ -125,32 +132,46 @@ MouseCoordinatesLoop proc near
     call GetMousePosition
     mov ax, [mouseY]
     call ConvertToASCII
-    jmp mouseLoop
     ret
 MouseCoordinatesLoop endp
 
-OnTextClicked proc far
+; MainMenuLoop
+;
+; This procedure will loop forever and handle the mouse
+; events.
+;
+MainMenuLoop proc near
 
-    ret
-OnTextClicked endp
+    mov [text_x1], 280
+    mov [text_y1], 170
+    mov [text_x2], 330
+    mov [text_y2], 190
+
+do_loop:
+    push [text_y2]
+    push [text_y1]
+    push [text_x2]
+    push [text_x1]
+    call IsMouseIn 
+    add sp, 8
+    call LoadMouseText
+    call MouseCoordinatesLoop
+jmp do_loop
+ret
+MainMenuLoop endp
 
 ; MenuDriver
 ;
 ; This procedure is the main driver for the menu.
 ; It will call all the other procedures to display
 ; the menu and handle the mouse.
+;
 MenuDriver proc far
     call SetVideoMode
     call ShowMouse
     call ClearScreen
     call PrintMenu
-    ;call board
-    call LoadMouseText
-    call MouseCoordinatesLoop
-
-    tremendo:
-    call IsMouseIn 
-    jmp tremendo
+    call MainMenuLoop
     ret
 MenuDriver endp
 
