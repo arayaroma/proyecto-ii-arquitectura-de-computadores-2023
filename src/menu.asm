@@ -21,6 +21,8 @@ extrn mouseYText:byte
 extrn mouseX:word
 extrn mouseY:word
 
+
+include src\macros\util.inc
 .data
 
 titleText db '[Endless Runners]', '$'
@@ -32,7 +34,6 @@ axisYOffset db ?
 axisXOffset db ?
 
 .code
-
 ; PrintMenu
 ;
 ; This procedure will print the menu on the screen.
@@ -131,8 +132,8 @@ MenuDriver proc far
     call SetVideoMode
     call ShowMouse
     call ClearScreen
-    call PrintMenu
-    ;call board
+    ; call PrintMenu
+    call board
     call LoadMouseText
     call MouseCoordinatesLoop
     ret
