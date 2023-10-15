@@ -1,3 +1,6 @@
+; mouse.asm
+; author: arayaroma
+;
 .8086
 .model small
 public ShowMouse, HideMouse, SetMousePosition, GetMousePosition, mouseX, mouseY, mouseXText, mouseYText

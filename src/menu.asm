@@ -1,3 +1,6 @@
+; menu.asm
+; author: arayaroma
+;
 .8086
 .model small
 public MenuDriver
@@ -6,6 +9,9 @@ public MenuDriver
 extrn ClearScreen:far
 extrn SetVideoMode:far
 extrn PrintMessage:far
+extrn IsMouseIn:far
+
+; board.asm
 extrn board:far
 
 ; ascii.asm
@@ -25,7 +31,7 @@ extrn mouseY:word
 
 titleText db '[Endless Runners]', '$'
 playText db 'Play', '$'
-stageText db 'Stage', '$'
+scoreboardText db 'Scoreboard', '$'
 aboutText db 'About', '$'
 
 axisYOffset db ?
@@ -58,15 +64,16 @@ PrintMenu proc far
     call PrintMessage
 
     add axisXOffset, 3
-
+    sub axisYOffset, 3
     mov dh, [axisXOffset]
     mov dl, [axisYOffset]
     call SetMousePosition
 
-    mov dx, offset stageText
+    mov dx, offset scoreboardText
     call PrintMessage
 
     add axisXOffset, 3
+    add axisYOffset, 3
 
     mov dh, [axisXOffset]
     mov dl, [axisYOffset]
@@ -122,6 +129,11 @@ MouseCoordinatesLoop proc near
     ret
 MouseCoordinatesLoop endp
 
+OnTextClicked proc far
+
+    ret
+OnTextClicked endp
+
 ; MenuDriver
 ;
 ; This procedure is the main driver for the menu.
@@ -135,6 +147,10 @@ MenuDriver proc far
     ;call board
     call LoadMouseText
     call MouseCoordinatesLoop
+
+    tremendo:
+    call IsMouseIn 
+    jmp tremendo
     ret
 MenuDriver endp
 

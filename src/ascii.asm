@@ -1,6 +1,9 @@
+; ascii.asm
+; author: arayaroma
+;
 .8086
 .model small
-public ConvertToASCII, DisplayASCII
+public ConvertToASCII, DisplayASCII, ascii_buffer
 
 .data
 ascii_buffer db 12 dup(0)
