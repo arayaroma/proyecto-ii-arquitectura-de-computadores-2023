@@ -23,6 +23,7 @@ extrn mouseY:word
 
 
 include src\macros\util.inc
+
 .data
 
 titleText db '[Endless Runners]', '$'
@@ -133,7 +134,7 @@ MenuDriver proc far
     call ShowMouse
     call ClearScreen
     ; call PrintMenu
-    call board
+    ;call board
     call LoadMouseText
     call MouseCoordinatesLoop
     ret
