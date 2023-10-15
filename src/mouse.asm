@@ -3,7 +3,8 @@
 ;
 .8086
 .model small
-public ShowMouse, HideMouse, SetMousePosition, GetMousePosition, mouseX, mouseY, mouseXText, mouseYText, IsMouseIn
+public ShowMouse, HideMouse, SetMousePosition, GetMousePosition
+public mouseX, mouseY, mouseXText, mouseYText, IsMouseIn, is_left_clicked
 
 ; ascii.asm
 extrn ConvertToASCII:far
@@ -22,12 +23,14 @@ mouseXText db "Mouse X: ", '$'
 mouseYText db "Mouse Y: ", '$'
 mouseX dw 0
 mouseY dw 0
+mouseStatus dw ?
 is_mouse_in dw ?
+is_left_clicked dw ?
 
 
 .code
 
-; showMouse
+; ShowMouse
 ;
 ; int 33H
 ; ax = 01H 
@@ -38,7 +41,7 @@ ShowMouse proc far
     ret
 ShowMouse endp
 
-; hideMouse
+; HideMouse
 ;
 ; int 33H
 ; ax = 02H
@@ -49,7 +52,7 @@ HideMouse proc far
     ret
 HideMouse endp
 
-; getMousePosition
+; GetMousePosition
 ;
 ; int 33H
 ; ax = 03H
@@ -67,10 +70,11 @@ GetMousePosition proc far
     int 33H
     mov [mouseX], cx
     mov [mouseY], dx
+    mov [mouseStatus], bx
     ret
 GetMousePosition endp
 
-; setMousePosition
+; SetMousePosition
 ;
 ; int 10H 
 ; ax = 02H
@@ -116,15 +120,25 @@ IsMouseIn proc far
     jg not_in_area
 
     mov [is_mouse_in], 1
-    jmp print_value
+    jmp if_is_left_clicked
 
 not_in_area:
     mov [is_mouse_in], 0
+    jmp if_is_left_clicked
+
+if_is_left_clicked:
+    cmp [mouseStatus], 00000001B
+    je left_clicked
+    mov [is_left_clicked], 0
+    jmp print_value
+
+left_clicked:
+    mov [is_left_clicked], 1
     jmp print_value
 
 ; debug purposes
 print_value:
-    mov ax, [is_mouse_in]
+    mov ax, [is_left_clicked]
     call ConvertToASCII
     pop bp
     ret

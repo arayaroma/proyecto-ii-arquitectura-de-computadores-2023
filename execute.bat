@@ -8,7 +8,6 @@ bin\tasm /z src\graphics.asm
 bin\tasm /z src\menu.asm
 pause
 bin\tasm /z src\mouse.asm
-pause
 bin\tasm /z src\board.asm
 
 :: copy bin files into target

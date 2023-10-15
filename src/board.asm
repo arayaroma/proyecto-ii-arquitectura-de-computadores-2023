@@ -1,6 +1,12 @@
 .MODEL SMALL
-public board                  
+public board, BoardDriver                
+
+; include util.inc
 include src\macros\util.inc
+
+; graphics.asm
+extrn ClearScreen:far
+extrn ShowMouse:far
 
 .data 
     col dw 10
@@ -60,4 +66,12 @@ board PROC far
     POP DX CX BX AX
     ret
 board ENDP
+
+BoardDriver proc far
+    call ClearScreen
+    call board
+    call ShowMouse
+    ret
+BoardDriver endp
+
 end
