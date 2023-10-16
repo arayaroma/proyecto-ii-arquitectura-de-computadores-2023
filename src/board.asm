@@ -1,9 +1,9 @@
 .MODEL SMALL
 public board      
-public col, row, count, lenthLine, color, direction            
+public col, row, lenthLine, color, direction            
 extrn printLine:far
-;extrn printRectangle:far
-;public px, py, colorPaint, widthSize, highsize
+extrn printRectangle:far
+public px, py, colorPaint, widthSize, highsize
 .data 
     col dw 100
     row dw 100
@@ -12,21 +12,21 @@ extrn printLine:far
 	sRow dw 150
     lenthLine dw 0
 	color db 66
-    direction db 0 ; 0 = right, 1 = down
+    direction db 0 
 
 
-  ;  px dw 100
-  ;  py dw 100
-  ;  colorPaint db 55   
-  ;  widthSize dw 55
-; highsize dw 55
+    px dw 100
+    colorPaint db 66   
+    py dw 100
+    highsize dw 55
+    widthSize dw 55
 
 .Code
 
 board PROC far
 
- ;   call printRectangle
-
+    call printRectangle
+    mov color, 55
     PUSH AX BX CX DX
     ; mov column and row to start position
     mov cx, sCol

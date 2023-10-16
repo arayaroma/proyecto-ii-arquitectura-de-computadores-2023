@@ -1,6 +1,6 @@
 .model SMALL
 
-extrn col:word, row:word, color:byte, direction:byte, lengthLine:word
+extrn col:word, row:word, color:byte, direction:byte, lenthLine:word
 public printLine
 include src\macros\util.inc
 .data
@@ -8,7 +8,7 @@ include src\macros\util.inc
 .code 
 
 printLine proc far
-    mov cx, lengthLine
+    mov cx, lenthLine
 
     prtRow:
         push cx
