@@ -1,4 +1,4 @@
-extrn px:word, py:word, colorPaint:byte, widthSize:word, highsize:word, color:byte, col:word, row:word, direction:byte, lenthLine:word
+extrn px:word, py:word, colorPaint:byte, widthSize:word, highsize:word, color:byte, row:word, col:word, direction:byte, lenthLine:word
 extrn printLine:far 
 public printRectangle
 
@@ -8,8 +8,8 @@ public printRectangle
 
 ;include src\macros\util.inc
 .data
-;col dw 0
 ;row dw 0
+;col dw 0
 ;color db 0
 
 ;direction db 0
@@ -23,16 +23,18 @@ printRectangle proc far
     mov row, ax
     mov al, colorPaint
     mov color, al
+
     mov dx, widthSize
-    mov lenthLine, 10
+    mov lenthLine, dx
     
-    mov cx, 10
+    mov cx, highsize
     prtRow:
         push cx
-        mov ax, py
-        mov row, ax
+
+        mov ax, px
+        mov col, ax
         call printLine
-        inc col
+        inc row
         pop cx
     loop prtRow
     ;waitEvent

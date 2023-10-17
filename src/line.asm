@@ -1,6 +1,6 @@
 .model SMALL
 
-extrn col:word, row:word, color:byte, direction:byte, lenthLine:word
+extrn row:word, col:word, color:byte, direction:byte, lenthLine:word
 public printLine
 include src\macros\util.inc
 .data
@@ -12,14 +12,14 @@ printLine proc far
 
     prtRow:
         push cx
-            printPoint col row color ; print point
+            printPoint row col color ; print point
         pop cx
         cmp direction, 0
             je ptrCol
-        inc col ; increment row position    
+        inc row ; increment row position    
         jmp entPrt
         ptrCol:
-            inc row ; increment row position
+            inc col ; increment col position
         entPrt:   
     loop prtRow
 
