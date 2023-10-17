@@ -91,9 +91,9 @@ board PROC far
         mov lenthLine, 200
         mov direction, 1
         call printLine
-        cmp count, 41 
+        cmp count, 21 
         je endRows ; go end 
-        add col,14 ; increment col position to next col
+        add col,28 ; increment col position to next col
     jmp strRow ; go start col
     endRows:
     POP DX CX BX AX
