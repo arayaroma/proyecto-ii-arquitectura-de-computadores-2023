@@ -1,21 +1,22 @@
 :: remove all files from target
+::pause
 del target\*.* /Q
 
 :: assemble the files
 bin\tasm /z src\main.asm
-pause
+::pause
 bin\tasm /z src\ascii.asm
-pause
+::pause
 bin\tasm /z src\graphics.asm
-pause
+::pause
 bin\tasm /z src\menu.asm
-pause
+::pause
 bin\tasm /z src\mouse.asm
 pause
 bin\tasm /z src\board.asm
 pause
 bin\tasm /z src\line.asm
-pause
+::pause
 bin\tasm /z src\rect.asm
 pause
 :: copy bin files into target

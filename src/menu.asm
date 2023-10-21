@@ -133,10 +133,10 @@ MenuDriver proc far
     call SetVideoMode
     call ShowMouse
     call ClearScreen
-    ; call PrintMenu
+    ;call PrintMenu
     call board
-    call LoadMouseText
-    call MouseCoordinatesLoop
+    ;call LoadMouseText
+    ;call MouseCoordinatesLoop
     ret
 MenuDriver endp
 

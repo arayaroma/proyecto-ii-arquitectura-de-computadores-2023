@@ -1,4 +1,5 @@
 :: remove all files from target
+::pause
 del target\*.* /Q
 
 :: assemble the files
@@ -11,13 +12,13 @@ bin\tasm /z src\graphics.asm
 bin\tasm /z src\menu.asm
 ::pause
 bin\tasm /z src\mouse.asm
-::pause
+pause
 bin\tasm /z src\board.asm
-::pause
+pause
 bin\tasm /z src\line.asm
 ::pause
 bin\tasm /z src\rect.asm
-::pause
+pause
 :: copy bin files into target
 ::copy *.obj target
 ::del *.obj
@@ -26,8 +27,7 @@ bin\tasm /z src\rect.asm
 bin\tlink main.obj ascii.obj graphics.obj menu.obj mouse.obj board.obj line.obj rect.obj , target\main.exe
 copy *.obj target
 del *.obj
-::pause
-
+pause
 
 :: execute it
 bin\td target\main.exe
