@@ -11,6 +11,7 @@ bin\tasm /z src\graphics.asm
 ::pause
 bin\tasm /z src\menu.asm
 ::pause
+pause
 bin\tasm /z src\mouse.asm
 pause
 bin\tasm /z src\board.asm

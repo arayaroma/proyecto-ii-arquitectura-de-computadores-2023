@@ -4,6 +4,15 @@ public row, col, lenthLine, color, direction
 extrn printLine:far
 extrn printRectangle:far
 public px, py, colorPaint, widthSize, highsize
+public board, BoardDriver                
+
+; include util.inc
+;include src\macros\util.inc
+
+; graphics.asm
+extrn ClearScreen:far
+extrn ShowMouse:far
+
 .data 
     row dw 100
     col dw 100
@@ -64,5 +73,12 @@ board PROC far
 
     ret
 board ENDP
+
+BoardDriver proc far
+    call ClearScreen
+    call board
+    call ShowMouse
+    ret
+BoardDriver endp
 
 end

@@ -1,3 +1,6 @@
+; graphics.asm
+; author: arayaroma
+;
 .8086
 .model small
 public SetVideoMode, ClearScreen, PrintMessage
