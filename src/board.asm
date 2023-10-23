@@ -4,8 +4,9 @@ public row, col, lenthLine, color, direction
 extrn printLine:far
 extrn printRectangle:far
 public px, py, colorPaint, widthSize, highsize
-public board, BoardDriver                
-
+public board, BoardDriver     
+extrn move:far           
+extrn pattern:byte
 ; include util.inc
 ;include src\macros\util.inc
 
@@ -23,7 +24,7 @@ extrn ShowMouse:far
 	color db 66
     direction db 0 
 
-    pattern db 'ABBBBABBBBBaBBBBBBBBBaBBBBBBBBBBaBBBBBBBBBaBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBcB','$'
+   ;; pattern db 'ABBBBABBBBBaBBBBBBBBBaBBBBBBBBBBaBBBBBBBBBaBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBcB','$'
     px db 75
     colorPaint db 66   
     py db 9
@@ -76,8 +77,13 @@ board ENDP
 
 BoardDriver proc far
     call ClearScreen
+    ;call ShowMouse
+    go:
     call board
-    call ShowMouse
+    call move
+    mov ah, 00H ; wait for keypress
+    int 16H 
+    jmp go
     ret
 BoardDriver endp
 
