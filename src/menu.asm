@@ -36,6 +36,8 @@ titleText db '[Endless Runners]', '$'
 playText db 'Play', '$'
 scoreboardText db 'Scoreboard', '$'
 aboutText db 'About', '$'
+incrementLevel db '+', '$'
+decrementLevel db '-', '$'
 
 text_x1 dw ?
 text_y1 dw ?
@@ -110,6 +112,24 @@ PrintMenu proc far
 
     mov dx, offset aboutText
     call PrintMessage
+
+    add axisXOffset, 3
+    add axisYOffset, 2
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+
+    mov dx, offset incrementLevel
+    call PrintMessage
+
+    add axisXOffset, 3
+
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+
+    mov dx, offset decrementLevel
+    call PrintMessage
     ret
 PrintMenu endp
 
@@ -123,7 +143,7 @@ LoadMouseText proc near
     call SetMousePosition
 
     mov dx, offset mouseXText
-    call PrintMessage 
+    call PrintMessage
 
     mov dh, 1
     mov dl, 0
