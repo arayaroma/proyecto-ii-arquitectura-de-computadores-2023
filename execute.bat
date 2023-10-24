@@ -12,7 +12,7 @@ bin\tasm /z src\about.asm
 bin\tasm /z src\board.asm
 
 :: link the files
-bin\tlink target\main.obj target\ascii.obj target\graphics.obj target\menu.obj target\mouse.obj target\score.obj target\about.obj target\board.obj
+bin\tlink main.obj ascii.obj graphics.obj menu.obj mouse.obj score.obj about.obj board.obj, target\main.exe
 pause
 
 :: copy bin files into target
