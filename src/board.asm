@@ -7,6 +7,10 @@ include src\macros\util.inc
 ; graphics.asm
 extrn ClearScreen:far
 extrn ShowMouse:far
+extrn PrintMessage:far
+
+; mouse.asm
+extrn SetMousePosition:far
 
 .data 
     col dw 10
@@ -14,6 +18,7 @@ extrn ShowMouse:far
     count db 0
 	sCol dw 50
 	sRow dw 150
+    board_text db 'Board', '$'
 
 	
 .Code
@@ -69,6 +74,14 @@ board ENDP
 
 BoardDriver proc far
     call ClearScreen
+
+    mov dh, 0
+    mov dl, 0
+    call SetMousePosition
+
+    mov dx, offset board_text 
+    call PrintMessage
+
     call board
     call ShowMouse
     ret

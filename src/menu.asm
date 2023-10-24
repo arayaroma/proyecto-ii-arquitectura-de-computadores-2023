@@ -3,7 +3,10 @@
 ;
 .8086
 .model small
-public MenuDriver, text_x1, text_y1, text_x2, text_y2
+public MenuDriver
+public play_text_x1, play_text_y1, play_text_x2, play_text_y2
+public scoreboard_text_x1, scoreboard_text_y1, scoreboard_text_x2, scoreboard_text_y2
+public about_text_x1, about_text_y1, about_text_x2, about_text_y2
 
 ; graphics.asm
 extrn ClearScreen:far
@@ -18,6 +21,12 @@ extrn BoardDriver:far
 extrn ConvertToASCII:far
 extrn DisplayASCII:far
 
+; about.asm
+extrn AboutDriver:far
+
+; score.asm
+extrn ScoreboardDriver:far
+
 ; mouse.asm
 extrn GetMousePosition:far
 extrn SetMousePosition:far
@@ -28,7 +37,9 @@ extrn mouseXText:byte
 extrn mouseYText:byte
 extrn mouseX:word
 extrn mouseY:word
-extrn is_left_clicked:word
+extrn is_in_play_area:word
+extrn is_in_scoreboard_area:word
+extrn is_in_about_area:word
 
 .data
 
@@ -38,11 +49,6 @@ scoreboardText db 'Scoreboard', '$'
 aboutText db 'About', '$'
 incrementLevel db '+', '$'
 decrementLevel db '-', '$'
-
-text_x1 dw ?
-text_y1 dw ?
-text_x2 dw ?
-text_y2 dw ?
 
 play_text_x1 dw 280
 play_text_y1 dw 170
@@ -58,11 +64,6 @@ about_text_x1 dw 295
 about_text_y1 dw 274
 about_text_x2 dw 335
 about_text_y2 dw 285
-
-; 00000001B = play
-; 00000010B = scoreboard
-; 00000100B = about
-area_option dw ?
 
 axisYOffset db ?
 axisXOffset db ?
@@ -186,67 +187,46 @@ MouseCoordinatesLoop endp
 ;
 MainMenuLoop proc near
 do_loop:
-    push [play_text_y2]
-    push [play_text_y1]
-    push [play_text_x2]
-    push [play_text_x1]
     call IsMouseIn 
-    add sp, 8
-    mov [area_option], 00000001B
-
-    push [scoreboard_text_y2]
-    push [scoreboard_text_y1]
-    push [scoreboard_text_x2]
-    push [scoreboard_text_x1]
-    call IsMouseIn
-    add sp, 8
-    ; mov [area_option], 00000010B
-
-    push [about_text_y2]
-    push [about_text_y1]
-    push [about_text_x2]
-    push [about_text_x1]
-    call IsMouseIn
-    add sp, 8
-    ; mov [area_option], 00000100B
-
-    cmp [is_left_clicked], 1
-    je left_clicked
+    cmp [is_in_play_area], 1
+    je play
+    cmp [is_in_scoreboard_area], 1
+    je scoreboard
+    cmp [is_in_about_area], 1
+    je about
 
     call LoadMouseText
     call MouseCoordinatesLoop
     jmp do_loop
 
-left_clicked:
-    cmp [area_option], 00000001B
-    je goto_play
+play:
+    call GotoPlay
+    ret
+scoreboard:
+    call GotoScoreboard
+    ret
+about:
+    call GotoAbout
+    ret
+MainMenuLoop endp
 
-    cmp [area_option], 00000010B
-    je goto_scoreboard
-
-    cmp [area_option], 00000100B
-    je goto_about
-
-    call LoadMouseText
-    call MouseCoordinatesLoop
-repeat_loop:
-    jmp do_loop
-
-goto_play:
+GotoPlay proc near
     call HideMouse
     call BoardDriver
     ret
+GotoPlay endp
 
-goto_scoreboard:
+GotoScoreboard proc near
     call HideMouse
-    call ClearScreen
+    call ScoreboardDriver
     ret
+GotoScoreboard endp
 
-goto_about:
+GotoAbout proc near
     call HideMouse
-    call ClearScreen
+    call AboutDriver
     ret
-MainMenuLoop endp
+GotoAbout endp
 
 ; MenuDriver
 ;
