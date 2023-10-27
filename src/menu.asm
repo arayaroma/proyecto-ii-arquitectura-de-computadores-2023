@@ -3,7 +3,7 @@
 ;
 .8086
 .model small
-public MenuDriver
+public MenuDriver, PrintMenu
 public play_text_x1, play_text_y1, play_text_x2, play_text_y2
 public scoreboard_text_x1, scoreboard_text_y1, scoreboard_text_x2, scoreboard_text_y2
 public about_text_x1, about_text_y1, about_text_x2, about_text_y2
@@ -32,14 +32,12 @@ extrn GetMousePosition:far
 extrn SetMousePosition:far
 extrn ShowMouse:far
 extrn HideMouse:far
-extrn IsMouseIn:far
 extrn mouseXText:byte
 extrn mouseYText:byte
 extrn mouseX:word
 extrn mouseY:word
-extrn is_in_play_area:word
-extrn is_in_scoreboard_area:word
-extrn is_in_about_area:word
+extrn is_mouse_in:word
+extrn mouseStatus:word
 
 .data
 
@@ -67,6 +65,10 @@ about_text_y2 dw 285
 
 axisYOffset db ?
 axisXOffset db ?
+
+is_in_play_area dw ?
+is_in_scoreboard_area dw ?
+is_in_about_area dw ?
 
 .code
 
@@ -179,6 +181,124 @@ MouseCoordinatesLoop proc near
     ret
 MouseCoordinatesLoop endp
 
+; MenuClickEvent
+;
+; checks if mouse is in a specific area
+; 
+; x1, y1 = top left corner
+; x2, y2 = bottom right corner
+;
+; Input: none
+; Output: is_mouse_in = 1 if mouse is in area, 0 otherwise
+;
+MenuClickEvent proc near
+    ; debug purposes
+    push dx
+    mov dh, 2
+    mov dl, 0
+    call SetMousePosition
+    pop dx
+
+    cmp cx, [play_text_x1]
+    jl not_in_play_area
+    cmp cx, [play_text_x2]
+    jg not_in_play_area
+
+    cmp dx, [play_text_y1]
+    jl not_in_play_area
+    cmp dx, [play_text_y2]
+    jg not_in_play_area
+
+    mov [is_mouse_in], 1
+    jmp if_is_in_play_area
+
+not_in_play_area:
+    cmp cx, [scoreboard_text_x1]
+    jl not_in_scoreboard_area
+    cmp cx, [scoreboard_text_x2]
+    jg not_in_scoreboard_area
+
+    cmp dx, [scoreboard_text_y1]
+    jl not_in_scoreboard_area
+    cmp dx, [scoreboard_text_y2]
+    jg not_in_scoreboard_area
+
+    mov [is_mouse_in], 1
+    jmp if_is_in_scoreboard_area
+
+not_in_scoreboard_area:
+    cmp cx, [about_text_x1]
+    jl not_in_about_area
+    cmp cx, [about_text_x2]
+    jg not_in_about_area
+
+    cmp dx, [about_text_y1]
+    jl not_in_about_area
+    cmp dx, [about_text_y2]
+    jg not_in_about_area
+
+    mov [is_mouse_in], 1
+    jmp if_is_in_about_area
+
+not_in_about_area:
+    mov [is_mouse_in], 0
+    cmp [mouseStatus], 1
+    jne to_print_value
+
+    cmp [is_mouse_in], 1
+    jne to_print_value
+
+if_is_in_play_area:
+    cmp [mouseStatus], 1
+    jne to_print_value
+
+    cmp [is_mouse_in], 1
+    jne to_print_value
+
+    jmp click_on_play
+
+if_is_in_scoreboard_area:
+    cmp [mouseStatus], 1
+    jne to_print_value
+
+    cmp [is_mouse_in], 1
+    jne to_print_value
+
+    jmp click_on_scoreboard
+
+if_is_in_about_area:
+    cmp [mouseStatus], 1
+    jne to_print_value
+
+    cmp [is_mouse_in], 1
+    jne to_print_value
+
+    jmp click_on_about
+
+to_print_value:
+    mov [is_in_play_area], 0
+    mov [is_in_scoreboard_area], 0
+    mov [is_in_about_area], 0
+    jmp print_value
+
+click_on_play:
+    mov [is_in_play_area], 1
+    jmp print_value
+
+click_on_scoreboard:
+    mov [is_in_scoreboard_area], 1
+    jmp print_value
+
+click_on_about:
+    mov [is_in_about_area], 1
+    jmp print_value
+
+; debug purposes
+print_value:
+    mov ax, [is_in_scoreboard_area]
+    call ConvertToASCII
+    ret
+MenuClickEvent endp
 
 ; MainMenuLoop
 ;
@@ -187,7 +307,7 @@ MouseCoordinatesLoop endp
 ;
 MainMenuLoop proc near
 do_loop:
-    call IsMouseIn 
+    call MenuClickEvent 
     cmp [is_in_play_area], 1
     je play
     cmp [is_in_scoreboard_area], 1

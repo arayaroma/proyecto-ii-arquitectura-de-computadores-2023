@@ -13,7 +13,6 @@ bin\tasm /z src\board.asm
 
 :: link the files
 bin\tlink main.obj ascii.obj graphics.obj menu.obj mouse.obj score.obj about.obj board.obj, target\main.exe
-pause
 
 :: copy bin files into target
 copy *.obj target

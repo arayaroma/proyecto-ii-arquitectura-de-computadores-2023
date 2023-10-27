@@ -4,6 +4,20 @@
 .8086
 .model small
 public SetVideoMode, ClearScreen, PrintMessage
+public PrintBackButton
+
+; about.asm
+extrn GoBackMenu:far
+
+; mouse.asm
+extrn SetMousePosition:far
+
+.data
+
+button_label db 'Back', '$'
+
+axis_x db ?
+axis_y db ?
 
 .code
 
@@ -17,7 +31,6 @@ SetVideoMode proc far
     int 10h
     ret
 SetVideoMode endp
-
 
 ;   ClearScreen
 ;
@@ -43,5 +56,20 @@ PrintMessage proc far
     int 21H
     ret
 PrintMessage endp
+
+;   PrintBackButton
+;
+PrintBackButton proc far
+    mov axis_x, 0
+    mov axis_y, 0
+
+    mov dh, [axis_x]
+    mov dl, [axis_y]
+    call SetMousePosition
+
+    mov dx, offset button_label
+    call PrintMessage
+    ret
+PrintBackButton endp
 
 end

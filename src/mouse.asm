@@ -3,20 +3,13 @@
 ;
 .8086
 .model small
+public IsMouseIn
 public ShowMouse, HideMouse, SetMousePosition, GetMousePosition
-public mouseX, mouseY, mouseXText, mouseYText, IsMouseIn
-public is_in_play_area, is_in_scoreboard_area, is_in_about_area
-
-; ascii.asm
-extrn ConvertToASCII:far
+public mouseX, mouseY, mouseXText, mouseYText
+public is_mouse_in, mouseStatus
 
 ; graphics.asm
 extrn PrintMessage:far
-
-; menu.asm
-extrn play_text_x1:word, play_text_y1:word, play_text_x2:word, play_text_y2:word
-extrn scoreboard_text_x1:word, scoreboard_text_y1:word, scoreboard_text_x2:word, scoreboard_text_y2:word
-extrn about_text_x1:word, about_text_y1:word, about_text_x2:word, about_text_y2:word
 
 .data
 mouseXText db "Mouse X: ", '$'
@@ -25,9 +18,6 @@ mouseX dw 0
 mouseY dw 0
 mouseStatus dw ?
 is_mouse_in dw ?
-is_in_play_area dw ?
-is_in_scoreboard_area dw ?
-is_in_about_area dw ?
 
 .code
 
@@ -92,119 +82,39 @@ SetMousePosition endp
 
 ; IsMouseIn
 ;
-; checks if mouse is in a specific area
-; 
-; x1, y1 = top left corner
-; x2, y2 = bottom right corner
+; cx = x position
+; dx = y position
+; [bp + 4] = x1
+; [bp + 6] = x2
+; [bp + 8] = y1
+; [bp + 10] = y2
 ;
-; Input: none
-; Output: is_mouse_in = 1 if mouse is in area, 0 otherwise
+; is_mouse_in = 1 if mouse is in the box
+; is_mouse_in = 0 if mouse is not in the box
 ;
 IsMouseIn proc far
-    push dx
-    mov dh, 2
-    mov dl, 0
-    call SetMousePosition
-    pop dx
+    push bp
+    mov bp, sp
 
-    cmp cx, [play_text_x1]
-    jl not_in_play_area
-    cmp cx, [play_text_x2]
-    jg not_in_play_area
+    cmp word ptr [bp + 4], cx
+    jl not_in
+    cmp word ptr [bp + 6], cx
+    jg not_in
 
-    cmp dx, [play_text_y1]
-    jl not_in_play_area
-    cmp dx, [play_text_y2]
-    jg not_in_play_area
+    cmp word ptr [bp + 8], dx
+    jl not_in
+    cmp word ptr [bp + 10], dx
+    jg not_in
 
     mov [is_mouse_in], 1
-    jmp if_is_in_play_area
+    jmp return
 
-not_in_play_area:
-    cmp cx, [scoreboard_text_x1]
-    jl not_in_scoreboard_area
-    cmp cx, [scoreboard_text_x2]
-    jg not_in_scoreboard_area
-
-    cmp dx, [scoreboard_text_y1]
-    jl not_in_scoreboard_area
-    cmp dx, [scoreboard_text_y2]
-    jg not_in_scoreboard_area
-
-    mov [is_mouse_in], 1
-    jmp if_is_in_scoreboard_area
-
-not_in_scoreboard_area:
-    cmp cx, [about_text_x1]
-    jl not_in_about_area
-    cmp cx, [about_text_x2]
-    jg not_in_about_area
-
-    cmp dx, [about_text_y1]
-    jl not_in_about_area
-    cmp dx, [about_text_y2]
-    jg not_in_about_area
-
-    mov [is_mouse_in], 1
-    jmp if_is_in_about_area
-
-not_in_about_area:
+not_in:
     mov [is_mouse_in], 0
-    cmp [mouseStatus], 1
-    jne to_print_value
+    jmp return
 
-    cmp [is_mouse_in], 1
-    jne to_print_value
-
-if_is_in_play_area:
-    cmp [mouseStatus], 1
-    jne to_print_value
-
-    cmp [is_mouse_in], 1
-    jne to_print_value
-
-    jmp click_on_play
-
-if_is_in_scoreboard_area:
-    cmp [mouseStatus], 1
-    jne to_print_value
-
-    cmp [is_mouse_in], 1
-    jne to_print_value
-
-    jmp click_on_scoreboard
-
-if_is_in_about_area:
-    cmp [mouseStatus], 1
-    jne to_print_value
-
-    cmp [is_mouse_in], 1
-    jne to_print_value
-
-    jmp click_on_about
-
-to_print_value:
-    mov [is_in_play_area], 0
-    mov [is_in_scoreboard_area], 0
-    mov [is_in_about_area], 0
-    jmp print_value
-
-click_on_play:
-    mov [is_in_play_area], 1
-    jmp print_value
-
-click_on_scoreboard:
-    mov [is_in_scoreboard_area], 1
-    jmp print_value
-
-click_on_about:
-    mov [is_in_about_area], 1
-    jmp print_value
-
-; debug purposes
-print_value:
-    mov ax, [is_in_scoreboard_area]
-    call ConvertToASCII
+return:
+    pop bp
     ret
 IsMouseIn endp
 
