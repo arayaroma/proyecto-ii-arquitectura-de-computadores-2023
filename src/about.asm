@@ -6,15 +6,17 @@
 public AboutDriver, GoBackMenu
 
 ; menu.asm
-extrn PrintMenu:far
+extrn MenuDriver:far
 
 ; mouse.asm
 extrn SetMousePosition:far
 extrn ShowMouse:far
 extrn HideMouse:far
 extrn SetMousePosition:far
+extrn GetMousePosition:far
 extrn IsMouseIn:far
 extrn is_mouse_in:word
+extrn mouseStatus:word
 
 ; graphics.asm
 extrn ClearScreen:far
@@ -35,44 +37,54 @@ axis_y_offset db ?
 
 back_x1 dw 0
 back_y1 dw 0
-back_x2 dw 1
-back_y2 dw 1
+back_x2 dw 400
+back_y2 dw 150
 
 .code
 
+; AboutDriver
+; Driver for the about menu
+;
 AboutDriver proc far
     call ClearScreen
     call ShowMouse
     call PrintInformation
     call PrintBackButton
+action_loop:
     call OnActionBackButton
+    cmp [is_mouse_in], 1
+    jne action_loop
+
+    call GoBackMenu
     ret
 AboutDriver endp
 
-GoBackMenu proc near
-    call HideMouse
-    call ClearScreen
-    call PrintMenu
-    ret
-GoBackMenu endp
-
+; OnActionBackButton
+; Checks if the mouse is in the back button
+;
 OnActionBackButton proc near
-action_loop:
     push [back_y2]
     push [back_y1]
     push [back_x2]
     push [back_x1]
     call IsMouseIn
     add sp, 8
-    cmp [is_mouse_in], 1
-    je go_menu
-
-    jmp action_loop
-go_menu:
-    call GoBackMenu
     ret
 OnActionBackButton endp
 
+; GoBackMenu
+; Returns to the main menu
+;
+GoBackMenu proc near
+    call HideMouse
+    call ClearScreen
+    call MenuDriver
+    ret
+GoBackMenu endp
+
+; PrintInformation
+; Prints the information about the developers
+;
 PrintInformation proc near
     mov axis_x_offset, 4
     mov axis_y_offset, 28
