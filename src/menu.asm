@@ -42,6 +42,9 @@ extrn mouseY:word
 extrn is_mouse_in:word
 extrn mouseStatus:word
 
+
+;include src\macros\util.inc
+
 .data
 
 titleText db '[Endless Runners]', '$'
@@ -73,7 +76,6 @@ is_in_scoreboard_area dw ?
 is_in_about_area dw ?
 
 .code
-
 ; PrintMenu
 ;
 ; This procedure will print the menu on the screen.
