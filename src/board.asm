@@ -1,41 +1,37 @@
 .MODEL SMALL
-public board      
-public row, col, lenthLine, color, direction            
-extrn printLine:far
+
 extrn printRectangle:far
-public px, py, colorPaint, widthSize, highsize
+public px, py, colorPaint
 public board, BoardDriver     
 extrn move:far           
 extrn pattern:byte
-; include util.inc
-;include src\macros\util.inc
+extrn delay:far
+extrn openFilePatron:far ,getNextLine:far , closePatron:far
 
-; graphics.asm
 extrn ClearScreen:far
 extrn ShowMouse:far
-
+extrn SetMousePosition:far
+extrn PrintMessage:far
 .data 
-    row dw 100
-    col dw 100
-    count db 0
-	sCol dw 50
-	sRow dw 150
-    lenthLine dw 0
-	color db 66
-    direction db 0 
 
-   ;; pattern db 'ABBBBABBBBBaBBBBBBBBBaBBBBBBBBBBaBBBBBBBBBaBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBcB','$'
     px db 75
     colorPaint db 66   
     py db 9
     highsize dw 20
-    widthSize dw 28
+
 
     contLine db 0
     cont db 0
 .Code
 
 board PROC far
+mov cont, 0
+mov contLine, 0
+mov px, 75
+mov py, 9
+xor ax, ax
+
+xor si, si
     lea si, pattern
     printPattern:
         mov cont,0
@@ -43,7 +39,7 @@ board PROC far
             mov ah,[si]
             cmp ah, '$'
             je endPattern
-            cmp ah,'B'
+            cmp ah,' '
             je free 
             jne notFree
             free:
@@ -55,19 +51,14 @@ board PROC far
                 call printRectangle
             init:
                 inc py  ; increment py position to next row
-                ; inc py  ; increment py position to next row
-
                 inc si
                 inc cont
                 cmp cont, 10
                 je pass
         jmp printPiece
         pass:
-        pop cx
         mov py, 9 ; reset py position
         sub px, 3 ; increment px position to next col
-        inc contLine 
-        cmp contLine, 25
         je endPattern 
     jmp printPattern
     endPattern:
@@ -76,14 +67,26 @@ board PROC far
 board ENDP
 
 BoardDriver proc far
-    call ClearScreen
-    ;call ShowMouse
+
+    call openFilePatron
     go:
+    call ClearScreen
+
+
+
+    push si di 
     call board
+    pop si di
+
+    call ShowMouse
+    call getNextLine
+    push si di
     call move
-    mov ah, 00H ; wait for keypress
-    int 16H 
+    pop si di
+    call delay
+
     jmp go
+    call closePatron
     ret
 BoardDriver endp
 
