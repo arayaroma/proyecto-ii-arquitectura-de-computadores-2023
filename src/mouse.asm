@@ -24,7 +24,7 @@ is_mouse_in dw ?
 ; ShowMouse
 ;
 ; int 33H
-; ax = 01H 
+; ax = 01H
 ;
 ShowMouse proc far
     mov ax, 0001H
@@ -50,7 +50,7 @@ HideMouse endp
 ; bx: button status
 ; cx: x position
 ; dx: y position
-; 
+;
 ; |8|7|6|5|4|3|2|1|0|
 ; (0) left button (1 = pressed)
 ; (1) right button (1 = pressed)
@@ -67,7 +67,7 @@ GetMousePosition endp
 
 ; SetMousePosition
 ;
-; int 10H 
+; int 10H
 ; ax = 02H
 ; bx = 00H
 ; dh = x position

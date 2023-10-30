@@ -34,7 +34,7 @@ DisplayASCII endp
 ;                   AX, BX, CX, DX, DI are modified
 ConvertToASCII proc far
     push ax bx cx dx di
-    
+
     mov bx, 10              ; Divide by 10 to convert to ASCII
     xor cx, cx              ; Clear CX for count
     lea di, ascii_buffer    ; DI points to the end of the buffer

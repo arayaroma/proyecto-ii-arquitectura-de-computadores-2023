@@ -24,6 +24,9 @@ extrn DisplayASCII:far
 ; about.asm
 extrn AboutDriver:far
 
+; option.asm
+
+extrn OptionDriver:far
 ; score.asm
 extrn ScoreboardDriver:far
 
@@ -45,8 +48,7 @@ titleText db '[Endless Runners]', '$'
 playText db 'Play', '$'
 scoreboardText db 'Scoreboard', '$'
 aboutText db 'About', '$'
-incrementLevel db '+', '$'
-decrementLevel db '-', '$'
+
 
 play_text_x1 dw 280
 play_text_y1 dw 170
@@ -116,23 +118,6 @@ PrintMenu proc far
     mov dx, offset aboutText
     call PrintMessage
 
-    add axisXOffset, 3
-    add axisYOffset, 2
-    mov dh, [axisXOffset]
-    mov dl, [axisYOffset]
-    call SetMousePosition
-
-    mov dx, offset incrementLevel
-    call PrintMessage
-
-    add axisXOffset, 3
-
-    mov dh, [axisXOffset]
-    mov dl, [axisYOffset]
-    call SetMousePosition
-
-    mov dx, offset decrementLevel
-    call PrintMessage
     ret
 PrintMenu endp
 
@@ -153,7 +138,7 @@ LoadMouseText proc near
     call SetMousePosition
 
     mov dx, offset mouseYText
-    call PrintMessage 
+    call PrintMessage
     ret
 LoadMouseText endp
 
@@ -332,7 +317,7 @@ MainMenuLoop endp
 
 GotoPlay proc near
     call HideMouse
-    call BoardDriver
+    call OptionDriver
     ret
 GotoPlay endp
 
