@@ -96,19 +96,18 @@ IsMouseIn proc far
     push bp
     mov bp, sp
 
-    cmp word ptr [bp + 4], cx
+    cmp cx, word ptr [bp + 4]
     jl not_in
-    cmp word ptr [bp + 6], cx
+    cmp cx, word ptr [bp + 6]
     jg not_in
 
-    cmp word ptr [bp + 8], dx
+    cmp dx, word ptr [bp + 8]
     jl not_in
-    cmp word ptr [bp + 10], dx
+    cmp dx, word ptr [bp + 10]
     jg not_in
 
     mov [is_mouse_in], 1
     jmp return
-
 not_in:
     mov [is_mouse_in], 0
     jmp return
