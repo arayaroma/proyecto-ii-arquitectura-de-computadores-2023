@@ -8,7 +8,7 @@ extrn SetMousePosition:far
 extrn PrintMessage:far
 .data
 
-    filename db ".../src/arch"
+    filename db "../src/patterns/arch"
     handle dw 0
     letterCount dw 0
 

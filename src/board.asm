@@ -4,15 +4,16 @@ extrn printRectangle:far
 public px, py, colorPaint
 public board, BoardDriver     
 extrn move:far           
-extrn pattern:byte
 extrn delay:far
 extrn openFilePatron:far ,getNextLine:far , closePatron:far
-
+public pattern
 extrn ClearScreen:far
 extrn ShowMouse:far
 extrn SetMousePosition:far
 extrn PrintMessage:far
 .data 
+
+    pattern db 250 dup(' ')	,'$'
 
     px db 75
     colorPaint db 66   
