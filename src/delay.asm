@@ -6,7 +6,7 @@ public delay
 .code
 
 delay proc far
-    mov cx, 02H      ; HIGH WORD. speed of delay.
+    mov cx, 15H      ; HIGH WORD. speed of delay.
     mov dx, 00h      ; LOW WORD.
     mov ah, 86h      ; WAIT.
     int 15h

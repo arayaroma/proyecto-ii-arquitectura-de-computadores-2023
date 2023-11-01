@@ -37,35 +37,27 @@ ret
 closePatron endp 
 
 getNextLine proc far
+	init:
     mov ah, 3Fh
     mov bx, handle
     mov cx, 10
     lea dx, movimiento
     int 21h
-	
-	INC letterCount
+
+	cmp ax,cx
+	jne reOpen
 	mov movimiento[10],"$"
-	
-    mov dh,1
-    mov dl,1
-    call SetMousePosition
-    mov dx, offset movimiento
-    call PrintMessage  
-
-	lea di, movimiento
 
 
-	mov ah, 09h
-	lea dx, movimiento
-	int 21h
-	
-	CMP letterCount, 10
-	JE reOpen
+	; mov ah, 09h
+	; lea dx, movimiento
+	; int 21h
+
 	jmp return
 	reOpen:
 	call closePatron
 	call openFilePatron
-
+	jmp init
 	return:
 ret
 getNextLine endp

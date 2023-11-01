@@ -71,7 +71,7 @@ BoardDriver proc far
 
     call openFilePatron
     go:
-    call ClearScreen
+   ; call ClearScreen
 
 
 

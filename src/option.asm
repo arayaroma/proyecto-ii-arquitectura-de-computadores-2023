@@ -472,6 +472,7 @@ MainOptionLoop endp
 
 GotoPlay proc near
     call HideMouse
+    call ClearScreen
     call BoardDriver
     ret
 GotoPlay endp
