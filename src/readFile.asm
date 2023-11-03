@@ -49,10 +49,6 @@ getNextLine proc far
 	mov movimiento[10],"$"
 
 
-	; mov ah, 09h
-	; lea dx, movimiento
-	; int 21h
-
 	jmp return
 	reOpen:
 	call closePatron
