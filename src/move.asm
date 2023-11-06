@@ -1,5 +1,5 @@
 .model SMALL
-extrn pattern:byte
+extrn pattern:byte, collision:byte
 public movimiento
 public move
 .data
@@ -21,6 +21,17 @@ cmp al,"$"
 jne goend
 
 sub si, 11
+lea di, collision
+push cx
+mov cx, 10
+    setCollision:
+    mov al, [si]
+    mov [di], al
+    inc di
+    inc si
+    loop setCollision
+pop cx
+sub si, 10
 
 
 ciclo:

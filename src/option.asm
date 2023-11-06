@@ -10,7 +10,6 @@ extrn ShowMouse:far
 extrn PrintMessage:far
 
 ; board.asm
-extrn board:far
 extrn BoardDriver:far
 
 ; ascii.asm
