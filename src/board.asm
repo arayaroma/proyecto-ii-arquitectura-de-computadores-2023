@@ -20,7 +20,7 @@ extrn PrintMessage:far
     colorPaint db 66   
     py db 9
     highsize dw 20
-
+    
 
     contLine db 0
     cont db 0
@@ -104,32 +104,30 @@ delay endp
 
 isMoveNave proc 
     xor ax, ax
+    MOV ah,0bh
+    int 21h
+    cmp al, 0
+    je endMove
 
-    mov ah,01h
+    mov ah,00h
     int 16h
 
-    cmp ax,0
+    cmp al,0
     je isMoveNaveZero
-    mov ah,02
-    mov dl,al
-    int 21h
-    cmp isMove, 1
-    je endMove
+  ;  cmp isMove, 1
+    ;je endMove
 
-    mov ah,02
-    mov dl,al
-    int 21h
 
     cmp ax,0
     je endMove
-    cmp al, 119
+    cmp al, 119 
     je moveUp
     cmp al, 115
     je moveDown
-    mov isMove, 0
+  ;  mov isMove, 0
     jmp endMove
     moveUp:
-        mov isMove, 1
+       ; mov isMove, 1
         lea si, nave
         loopToN:
         mov al, [si]
@@ -143,10 +141,9 @@ isMoveNave proc
         mov al, 'n'
         mov [si-1], al
         call board
-
         ret 
     moveDown:
-        mov isMove, 1
+       ; mov isMove, 1
         lea si, nave
         loopToNe:
         mov al, [si]
@@ -162,7 +159,7 @@ isMoveNave proc
         call board
             ret
     isMoveNaveZero:
-    mov isMove, 0
+  ;  mov isMove, 0
     endMove:
 ret
 isMoveNave endp
