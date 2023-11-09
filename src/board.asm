@@ -1,29 +1,40 @@
-.MODEL SMALL
+; board.asm
+; author: francisco
+;
+.8086
+.model small
 
-extrn printRectangle:far
-public px, py, colorPaint
 public BoardDriver     
-extrn move:far           
-extrn openFilePatron:far ,getNextLine:far , closePatron:far
+public px, py, colorPaint
 public pattern, collision
-extrn ClearScreen:far
+
+; file.asm
+extrn OpenFile:far, getNextLine:far, CloseFile:far
+
+; move.asm
+extrn move:far           
+
+; mouse.asm
 extrn ShowMouse:far
 extrn SetMousePosition:far
+
+;graphics.asm
+extrn ClearScreen:far
 extrn PrintMessage:far
+extrn printRectangle:far
+
 .data 
+    pattern         db 250 dup(' ')	,'$'
+    nave            db "     n    ", '$'
+    collision       db 10 dup(' ') , '$'
+    isMove          db 0
+    px              db 75
+    colorPaint      db 66   
+    py              db 9
+    highsize        dw 20
+    contLine        db 0
+    cont            db 0
 
-    pattern db 250 dup(' ')	,'$'
-    nave db "     n    ", '$'
-    collision db 10 dup(' ') , '$'
-    isMove db 0
-    px db 75
-    colorPaint db 66   
-    py db 9
-    highsize dw 20
-    
-
-    contLine db 0
-    cont db 0
 .Code
 
 board PROC far
@@ -166,7 +177,7 @@ isMoveNave endp
 
 BoardDriver proc far
 
-    call openFilePatron
+    call OpenFile
     go:
     push si
     call isMoveNave
@@ -180,7 +191,7 @@ BoardDriver proc far
     call delay
     pop cx
     jmp go
-    call closePatron
+    call CloseFile
     ret
 BoardDriver endp
 
