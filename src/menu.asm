@@ -24,8 +24,8 @@ extrn DisplayASCII:far
 extrn AboutDriver:far
 
 ; option.asm
-
 extrn OptionDriver:far
+
 ; score.asm
 extrn ScoreboardDriver:far
 
@@ -41,38 +41,33 @@ extrn mouseY:word
 extrn is_mouse_in:word
 extrn mouseStatus:word
 
-
-;include src\macros\util.inc
-
 .data
+    titleText               db '[Endless Runners]', '$'
+    playText                db 'Play', '$'
+    scoreboardText          db 'Scoreboard', '$'
+    aboutText               db 'About', '$'
 
-titleText db '[Endless Runners]', '$'
-playText db 'Play', '$'
-scoreboardText db 'Scoreboard', '$'
-aboutText db 'About', '$'
+    play_text_x1            dw 280
+    play_text_y1            dw 170
+    play_text_x2            dw 330
+    play_text_y2            dw 190
 
+    scoreboard_text_x1      dw 272
+    scoreboard_text_y1      dw 225
+    scoreboard_text_x2      dw 353
+    scoreboard_text_y2      dw 238
 
-play_text_x1 dw 280
-play_text_y1 dw 170
-play_text_x2 dw 330
-play_text_y2 dw 190
+    about_text_x1           dw 295
+    about_text_y1           dw 274
+    about_text_x2           dw 335
+    about_text_y2           dw 285
 
-scoreboard_text_x1 dw 272
-scoreboard_text_y1 dw 225
-scoreboard_text_x2 dw 353
-scoreboard_text_y2 dw 238
+    axisYOffset             db ?
+    axisXOffset             db ?
 
-about_text_x1 dw 295
-about_text_y1 dw 274
-about_text_x2 dw 335
-about_text_y2 dw 285
-
-axisYOffset db ?
-axisXOffset db ?
-
-is_in_play_area dw ?
-is_in_scoreboard_area dw ?
-is_in_about_area dw ?
+    is_in_play_area         dw ?
+    is_in_scoreboard_area   dw ?
+    is_in_about_area        dw ?
 
 .code
 ; PrintMenu
@@ -178,12 +173,7 @@ MouseCoordinatesLoop endp
 ; Output: is_mouse_in = 1 if mouse is in area, 0 otherwise
 ;
 MenuClickEvent proc near
-    ; debug purposes
-    push dx
-    mov dh, 2
-    mov dl, 0
-    call SetMousePosition
-    pop dx
+    call GetMousePosition
 
     cmp cx, [play_text_x1]
     jl not_in_play_area
@@ -281,8 +271,8 @@ click_on_about:
 
 ; debug purposes
 print_value:
-    mov ax, [is_in_scoreboard_area]
-    call ConvertToASCII
+    ; mov ax, [is_in_scoreboard_area]
+    ; call ConvertToASCII
     ret
 MenuClickEvent endp
 
@@ -300,9 +290,6 @@ do_loop:
     je scoreboard
     cmp [is_in_about_area], 1
     je about
-
-    call LoadMouseText
-    call MouseCoordinatesLoop
     jmp do_loop
 
 play:
