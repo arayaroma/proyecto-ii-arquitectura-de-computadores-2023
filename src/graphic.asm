@@ -1,10 +1,10 @@
-; graphics.asm
+; graphic.asm
 ; author: arayaroma
 ;
 .8086
 .model small
+public printRectangle, PrintBackButton
 public SetVideoMode, ClearScreen, PrintMessage
-public PrintBackButton
 
 ; about.asm
 extrn GoBackMenu:far
@@ -12,17 +12,14 @@ extrn GoBackMenu:far
 ; mouse.asm
 extrn SetMousePosition:far
 
-
 ; rectangle.asm
 extrn px:byte, py:byte, colorPaint:byte
 extrn printLine:far 
-public printRectangle
+
 .data
-
-button_label db 'Back', '$'
-
-axis_x db ?
-axis_y db ?
+    button_label    db 'Back', '$'
+    axis_x          db ?
+    axis_y          db ?
 
 .code
 
@@ -77,7 +74,8 @@ PrintBackButton proc far
     ret
 PrintBackButton endp
 
-
+;   printRectangle
+;
 printRectangle proc far
     Mov ah, 07h
     Mov al, 0   ; DESPLASAMINETO //
