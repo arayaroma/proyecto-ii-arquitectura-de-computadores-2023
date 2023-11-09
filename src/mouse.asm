@@ -3,7 +3,6 @@
 ;
 .8086
 .model small
-public IsMouseIn
 public ShowMouse, HideMouse, SetMousePosition, GetMousePosition
 public mouseX, mouseY, mouseXText, mouseYText
 public is_mouse_in, mouseStatus
@@ -79,42 +78,5 @@ SetMousePosition proc far
     int 10H
     ret
 SetMousePosition endp
-
-; IsMouseIn
-;
-; cx = x position
-; dx = y position
-; [bp + 4] = x1
-; [bp + 6] = x2
-; [bp + 8] = y1
-; [bp + 10] = y2
-;
-; is_mouse_in = 1 if mouse is in the box
-; is_mouse_in = 0 if mouse is not in the box
-;
-IsMouseIn proc far
-    push bp
-    mov bp, sp
-
-    cmp cx, word ptr [bp + 4]
-    jl not_in
-    cmp cx, word ptr [bp + 6]
-    jg not_in
-
-    cmp dx, word ptr [bp + 8]
-    jl not_in
-    cmp dx, word ptr [bp + 10]
-    jg not_in
-
-    mov [is_mouse_in], 1
-    jmp return
-not_in:
-    mov [is_mouse_in], 0
-    jmp return
-
-return:
-    pop bp
-    ret
-IsMouseIn endp
 
 end
