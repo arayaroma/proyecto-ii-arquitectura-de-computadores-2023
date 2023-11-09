@@ -1,19 +1,25 @@
-.model SMALL
+; file.asm
+; author: jesus abarca
+; author: arayaroma
+;
+.8086
+.model small
+public openFilePatron, closePatron , getNextLine
 
 extrn movimiento:byte
-
-public openFilePatron, closePatron , getNextLine
+; mouse.asm
 extrn ShowMouse:far
 extrn SetMousePosition:far
-extrn PrintMessage:far
-.data
 
+; graphics.asm
+extrn PrintMessage:far
+
+.data
     filename db "../src/patterns/arch"
     handle dw 0
     letterCount dw 0
 
 .code
-
 	
 openFilePatron proc far
 	xor cx,cx
@@ -28,12 +34,11 @@ openFilePatron proc far
 openFilePatron endp
 
 closePatron proc far
-xor ax,ax
-mov ah, 3Eh
-mov bx, handle
-int 21h
-
-ret
+	xor ax,ax
+	mov ah, 3Eh
+	mov bx, handle
+	int 21h
+	ret
 closePatron endp 
 
 getNextLine proc far
@@ -55,6 +60,7 @@ getNextLine proc far
 	call openFilePatron
 	jmp init
 	return:
-ret
+	ret
 getNextLine endp
+
 end
