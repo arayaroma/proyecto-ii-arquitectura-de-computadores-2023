@@ -3,7 +3,8 @@
 ;
 .8086
 .model small
-public OptionDriver
+public OptionDriver, nombre
+
 ; graphics.asm
 extrn ClearScreen:far
 extrn ShowMouse:far
@@ -11,6 +12,10 @@ extrn PrintMessage:far
 
 ; board.asm
 extrn BoardDriver:far
+
+; file.asm
+; extrn OpenScoreFile:far
+; extrn WriteScoreFile:far
 
 ; ascii.asm
 extrn ConvertToASCII:far
@@ -161,6 +166,8 @@ PrintOption proc far
 
     ;end loop name
     end_loop_name:
+        ; call OpenScoreFile
+        ; call WriteScoreFile
 
         ;escribir el nombre
         call ClearScreen
