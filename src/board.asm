@@ -14,6 +14,9 @@ extrn OpenFile:far, getNextLine:far, CloseFile:far
 ; move.asm
 extrn move:far           
 
+; option.asm
+extrn nombre:byte
+
 ; mouse.asm
 extrn ShowMouse:far
 extrn SetMousePosition:far
@@ -24,18 +27,94 @@ extrn PrintMessage:far
 extrn printRectangle:far
 
 .data 
-    pattern         db 250 dup(' ')	,'$'
-    nave            db "     n    ", '$'
-    collision       db 10 dup(' ') , '$'
-    isMove          db 0
-    px              db 75
-    colorPaint      db 66   
-    py              db 9
-    highsize        dw 20
-    contLine        db 0
-    cont            db 0
+    endless_runners     db "Endless Runners", '$'
+    player_name         db "Player: ", '$'
+    player_name_x       db 1
+    player_name_y       db 14
+    player_score        db "Score: ", '$'
+    player_score_value  db "0", '$'
+    player_score_x      db 1
+    player_score_y      db 38
+    player_lives        db "Lives: ", '$'
+    player_live_one     db 3, '$'
+    player_live_two     db 3, '$'
+    player_live_three   db 3, '$'
+    player_lives_x      db 1
+    player_lives_y      db 62
+    pause_message       db "Press P to pause the game", '$'
+    pause_message_x     db 20
+    pause_message_y     db 4
+    pattern             db 250 dup(' ')	,'$'
+    nave                db "     n    ", '$'
+    collision           db 10 dup(' ') , '$'
+    isMove              db 0
+    px                  db 75
+    colorPaint          db 66   
+    py                  db 9
+    highsize            dw 20
+    contLine            db 0
+    cont                db 0
 
 .Code
+
+PrintHeaders proc near
+    mov dh, 0
+    mov dl, 34
+    call SetMousePosition
+    lea dx, endless_runners
+    call PrintMessage
+
+    mov dh, [player_name_x]
+    mov dl, [player_name_y]
+    call SetMousePosition
+    lea dx, player_name
+    call PrintMessage
+
+    mov dh, [player_score_x]
+    mov dl, [player_score_y+2]
+    lea dx, nombre
+    call PrintMessage
+
+    mov dh, [player_score_x]
+    mov dl, [player_score_y]
+    call SetMousePosition
+    lea dx, player_score
+    call PrintMessage
+
+    mov dh, [player_score_x]
+    mov dl, [player_score_y+2]
+    lea dx, player_score_value
+    call PrintMessage
+
+    mov dh, [player_lives_x]
+    mov dl, [player_lives_y]
+    call SetMousePosition
+    lea dx, player_lives
+    call PrintMessage
+
+    mov dh, [player_lives_x]
+    mov dl, [player_lives_y+2]
+    lea dx, player_live_one
+    call PrintMessage
+
+    mov dl, [player_lives_y+3]
+    lea dx, player_live_two
+    call PrintMessage
+
+    mov dl, [player_lives_y+4]
+    lea dx, player_live_three
+    call PrintMessage
+    ret
+PrintHeaders endp
+
+PrintPauseMessage proc near
+    mov dh, [pause_message_x]
+    mov dl, [pause_message_y]
+    call SetMousePosition
+    lea dx, pause_message
+    call PrintMessage
+    ret
+PrintPauseMessage endp
 
 board PROC far
 mov cont, 0
@@ -131,10 +210,11 @@ isMoveNave proc
 
     cmp ax,0
     je endMove
-    cmp al, 119 
+    cmp al, 119 ;  w 
     je moveUp
-    cmp al, 115
+    cmp al, 115 ; s
     je moveDown
+    ;cmp al, 112 ;p ascii code 112
   ;  mov isMove, 0
     jmp endMove
     moveUp:
@@ -176,7 +256,8 @@ ret
 isMoveNave endp
 
 BoardDriver proc far
-
+    call PrintHeaders
+    call PrintPauseMessage
     call OpenFile
     go:
     push si
