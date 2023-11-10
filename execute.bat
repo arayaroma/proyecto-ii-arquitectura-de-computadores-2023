@@ -21,6 +21,8 @@ copy *.obj target
 del *.obj
 copy *.map target
 del *.map 
+copy *.exe target
+del *.exe
 
 :: execute it
-main.exe
+target\main.exe
