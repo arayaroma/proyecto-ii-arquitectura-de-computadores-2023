@@ -5,8 +5,14 @@
 .8086
 .model small
 public OpenFile, closeFile , getNextLine
+; public OpenScoreFile, WriteScoreFile
 
+; move.asm
 extrn movimiento:byte
+
+; option.asm
+extrn nombre:byte
+
 ; mouse.asm
 extrn ShowMouse:far
 extrn SetMousePosition:far
@@ -16,6 +22,8 @@ extrn PrintMessage:far
 
 .data
     filename 				db "../src/patterns/arch"
+	; score					db "../src/patterns/score"
+	; score_handle			dw 0
     handle 					dw 0
     letterCount 			dw 0
 	is_open_error           db ?
@@ -51,6 +59,42 @@ open_error:
 _return:
 	ret
 OpenFile endp
+
+; OpenScoreFile proc far
+; 	call ClearVariables
+; 	mov ah, 3Dh
+; 	mov al, 02h
+; 	lea dx, score
+; 	int 21h
+; 	jc score_open_error
+
+; 	mov score_handle, ax
+; 	jmp final
+
+; score_open_error:
+; 	call OpenError
+; 	jmp final	
+
+; final:
+; 	ret
+; OpenScoreFile endp
+
+; WriteScoreFile proc far
+; 	mov ah, 40h
+; 	mov bx, score_handle
+; 	mov cx, 10
+; 	lea dx, nombre
+; 	int 21h
+; 	jc write_error
+; 	jmp do_end
+
+; write_error:
+; 	call OpenError
+; 	jmp do_end
+
+; do_end:
+; 	ret
+; WriteScoreFile endp
 
 ; CloseFile
 ;
