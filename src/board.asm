@@ -42,10 +42,11 @@ extrn printRectangle:far
     player_lives_x      db 1
     player_lives_y      db 62
     pause_message       db "Press P to pause the game", '$'
-    pause_message_x     db 20
+    pause_message_x     db 28
     pause_message_y     db 4
     pattern             db 250 dup(' ')	,'$'
-    nave                db "     n    ", '$'
+    nave                db "     N    ", '$'
+    posNave             db 6
     collision           db 10 dup(' ') , '$'
     isMove              db 0
     px                  db 75
@@ -166,13 +167,27 @@ xor si, si
             je freeNave 
             jne notfreeNave
             freeNave:
-                mov colorPaint, 1
+                mov colorPaint, 01
                 call printRectangle
                 jmp nextPiece
             notfreeNave:
+                cmp ah, 'n'
+                je naveNormal
+                cmp ah, 'N'
+                je naveColicion
+                cmp ah,'*'
+                je obstaculo
+                naveNormal:
                 mov colorPaint, 5
-                call printRectangle
+                jmp nextPiece
+                naveColicion:
+                mov colorPaint, 4
+                jmp nextPiece
+                obstaculo:
+                mov colorPaint, 66
+                
             nextPiece:
+            call printRectangle
                 inc py  ; increment py position to next row
                 inc si
                 inc cont
@@ -184,11 +199,18 @@ xor si, si
 board ENDP
 
 delay proc far
+    push    AX
+    push    BX
+    push    CX
     ; operacion con el nivel 
     MOV     CX, 0FH
     MOV     DX, 4240H
     MOV     AH, 86H
     INT     15H
+
+    pop     CX
+    pop     BX
+    pop     AX
     ret
 delay endp
 
@@ -218,15 +240,19 @@ isMoveNave proc
   ;  mov isMove, 0
     jmp endMove
     moveUp:
-       ; mov isMove, 1
+        cmp posNave, 1
+        je endMove
         lea si, nave
         loopToN:
         mov al, [si]
         cmp al, 'n'
         je moveNaveUp
+        cmp al,'N'
+        je moveNaveUp
         inc si 
         jmp loopToN
         moveNaveUp:
+        dec posNave
         mov al, ' '
         mov [si], al
         mov al, 'n'
@@ -234,15 +260,19 @@ isMoveNave proc
         call board
         ret 
     moveDown:
-       ; mov isMove, 1
+        cmp posNave, 10
+        je endMove
         lea si, nave
         loopToNe:
         mov al, [si]
         cmp al, 'n'
         je moveNaveDown
+        cmp al,'N'
+        je moveNaveDown
         inc si 
         jmp loopToNe
         moveNaveDown:
+        inc posNave
         mov al, ' '
         mov [si], al
         mov al, 'n'
@@ -254,6 +284,48 @@ isMoveNave proc
     endMove:
 ret
 isMoveNave endp
+
+ColitionCmp proc
+push si di
+    lea si, collision
+    lea di, nave
+    mov bl,'n'
+    mov bh,'N'
+    loopColition:
+        mov al, [si]
+        cmp al, '$'
+        je endColition
+            mov ah, [di]
+            cmp ah, 'n'
+            je naveColicion2
+            cmp ah, 'N'
+            je naveColicion2
+            mov [di],al
+            inc si
+            inc di
+            jmp loopColition
+            naveColicion2:
+            cmp al,'*'
+            je lostLive
+            cmp al,'c'
+            je getPoint
+            mov [di],bl
+            jmp freeColision
+            lostLive:
+                mov [di],bh
+                jmp freeColision
+            getPoint:
+                mov [di],bl
+                jmp freeColision
+            freeColision:
+            inc si
+            inc di
+            jmp loopColition
+        endColition:
+        call board
+    pop di si 
+    ret
+ColitionCmp endp
 
 BoardDriver proc far
     call PrintHeaders
@@ -267,10 +339,10 @@ BoardDriver proc far
     call ShowMouse
     call getNextLine
     call move
-
-    push cx
+    call ColitionCmp
+    
     call delay
-    pop cx
+
     jmp go
     call CloseFile
     ret

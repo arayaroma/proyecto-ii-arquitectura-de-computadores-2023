@@ -20,7 +20,7 @@ mov al, [si]
 cmp al,"$"
 jne goend
 
-sub si, 11
+sub si, 10
 lea di, collision
 push cx
 mov cx, 10
@@ -31,7 +31,7 @@ mov cx, 10
     inc si
     loop setCollision
 pop cx
-sub si, 10
+sub si, 11
 
 
 ciclo:
