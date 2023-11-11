@@ -55,7 +55,10 @@ extrn printRectangle:far
     highsize            dw 20
     contLine            db 0
     cont                db 0
-
+    second              db 0
+    isChangeSec         db 0
+    miliSec             db 0
+    gameDelay           db 99
 .Code
 
 PrintHeaders proc near
@@ -118,6 +121,7 @@ PrintPauseMessage proc near
 PrintPauseMessage endp
 
 board PROC far
+push ax bx cx dx
 mov cont, 0
 mov contLine, 0
 mov px, 77
@@ -195,26 +199,14 @@ xor si, si
                 je endNave
                 jmp pieceNave
         endNave:
+    pop dx cx bx ax
     ret
 board ENDP
 
-delay proc far
-    push    AX
-    push    BX
-    push    CX
-    ; operacion con el nivel 
-    MOV     CX, 0FH
-    MOV     DX, 4240H
-    MOV     AH, 86H
-    INT     15H
 
-    pop     CX
-    pop     BX
-    pop     AX
-    ret
-delay endp
 
 isMoveNave proc 
+ 
     xor ax, ax
     MOV ah,0bh
     int 21h
@@ -258,6 +250,7 @@ isMoveNave proc
         mov al, 'n'
         mov [si-1], al
         call board
+        call ColitionCmp
         ret 
     moveDown:
         cmp posNave, 10
@@ -277,16 +270,18 @@ isMoveNave proc
         mov [si], al
         mov al, 'n'
         mov [si+1], al
-        call board
+        call board 
+        call ColitionCmp
             ret
     isMoveNaveZero:
   ;  mov isMove, 0
     endMove:
+  
 ret
 isMoveNave endp
 
 ColitionCmp proc
-push si di
+
     lea si, collision
     lea di, nave
     mov bl,'n'
@@ -314,6 +309,7 @@ push si di
             lostLive:
                 mov [di],bh
                 jmp freeColision
+                
             getPoint:
                 mov [di],bl
                 jmp freeColision
@@ -323,26 +319,86 @@ push si di
             jmp loopColition
         endColition:
         call board
-    pop di si 
+
     ret
 ColitionCmp endp
+
+
+; delay proc 
+
+;     ; operacion con el nivel 
+
+;     MOV     AH, 86H
+;     MOV     CX, 0FH
+;     MOV     DX, 4240H
+;     INT     15H
+
+
+;     ret
+; delay endp
+delay proc
+	mov ah,2ch
+	int 21h
+    cmp isChangeSec, 1
+    je calcSecond
+    cmp dl, miliSec
+    jb endDelay
+    ; no hay que calcular
+    call getNextLine
+    call move
+    call board
+    call ColitionCmp
+    mov second, dh
+    mov bh, gameDelay
+    add miliSec, bh
+    cmp miliSec, 99
+    jna notAjust
+    sub miliSec, 99
+    mov isChangeSec, 1
+    jmp endDelay
+    ; hay que calcular
+    calcSecond:
+        cmp second,dh
+        je endDelay
+        cmp dl, miliSec 
+        jb endDelay
+        call getNextLine
+        call move
+        call board
+        call ColitionCmp
+        mov second, dh
+        mov bh, gameDelay
+        add miliSec, bh
+        cmp miliSec, 99
+        jna notAjust
+        sub miliSec, 99
+        mov isChangeSec, 1
+        jmp endDelay
+    notAjust:
+    mov isChangeSec, 0
+    endDelay:
+ret
+delay endp
 
 BoardDriver proc far
     call PrintHeaders
     call PrintPauseMessage
-    call OpenFile
-    go:
-    push si
-    call isMoveNave
-    pop si
-    call board
+    call OpenFile   
     call ShowMouse
-    call getNextLine
-    call move
-    call ColitionCmp
+    call board
+    go:
+  
+
+    call isMoveNave
+  
     
+
     call delay
 
+    ; call getNextLine
+    ; call move
+
+    
     jmp go
     call CloseFile
     ret

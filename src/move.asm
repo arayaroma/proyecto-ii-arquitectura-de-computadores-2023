@@ -8,7 +8,8 @@ movimiento db 10 dup(" "),"$"
 .code
 
 move PROC 
-xor si,si
+    push ax cx 
+
 lea SI, pattern
 
 XOR CX,CX
@@ -58,6 +59,7 @@ ciclo2:
     loop ciclo2
 fin2:
 
+    pop cx ax
     ret
 move endp
 end

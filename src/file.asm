@@ -110,6 +110,10 @@ CloseFile proc far
 CloseFile endp 
 
 getNextLine proc far
+	push ax
+	push bx
+	push cx
+	push dx
 	init:
     mov ah, 3Fh
     mov bx, handle
@@ -127,6 +131,10 @@ getNextLine proc far
 	call OpenFile
 	jmp init
 	return:
+	pop dx
+	pop cx
+	pop bx
+	pop ax
 	ret
 getNextLine endp
 

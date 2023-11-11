@@ -33,7 +33,7 @@ DisplayASCII endp
 ;                   ASCII characters are stored in the buffer in reverse order
 ;                   AX, BX, CX, DX, DI are modified
 ConvertToASCII proc far
-    push ax bx cx dx di
+    push ax bx cx dx 
 
     mov bx, 10              ; Divide by 10 to convert to ASCII
     xor cx, cx              ; Clear CX for count
@@ -59,7 +59,7 @@ OutputLoop:
     inc si 
     loop OutputLoop 
 
-    pop di dx cx bx ax
+    pop dx cx bx ax
     ret
 ConvertToASCII endp
 
