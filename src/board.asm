@@ -58,7 +58,10 @@ extrn printRectangle:far
     second              db 0
     isChangeSec         db 0
     miliSec             db 0
-    gameDelay           db 99
+    gameDelay           db 60
+    nextSeco            db 0
+    minute              db 0
+    isChange            db 0 
 .Code
 
 PrintHeaders proc near
@@ -324,25 +327,16 @@ ColitionCmp proc
 ColitionCmp endp
 
 
-; delay proc 
 
-;     ; operacion con el nivel 
-
-;     MOV     AH, 86H
-;     MOV     CX, 0FH
-;     MOV     DX, 4240H
-;     INT     15H
-
-
-;     ret
-; delay endp
 delay proc
 	mov ah,2ch
 	int 21h
     cmp isChangeSec, 1
     je calcSecond
     cmp dl, miliSec
-    jb endDelay
+    jb endDelay 
+    cmp second,dh
+    jne calcSecond
     ; no hay que calcular
     call getNextLine
     call move
@@ -380,25 +374,69 @@ delay proc
 ret
 delay endp
 
+
+
+restSecond proc 
+	mov ah,2ch
+	int 21h
+	mov nextSeco, dh
+	mov minute, cl
+	add nextSeco, 20
+	cmp nextSeco, 60
+	jnb ajuste
+	mov isChange,0
+	jmp endreset
+	ajuste:
+		sub nextSeco,60
+		mov isChange, 1 
+	endreset:
+	
+	ret
+
+restSecond endp
+
+cronom20 proc 
+	mov ah,2ch
+	int 21h
+
+	cmp isChange,1
+	je changeMinu
+	jne noEsperaCambio
+	
+	changeMinu:
+		cmp minute, cl
+		je endcom
+		cmp dh,nextSeco
+		jnb print
+		jmp endcom
+	noEsperaCambio:
+		cmp dh,nextSeco
+		jnb print
+		jmp endcom
+	print:
+		call restSecond
+        ; call upLvl
+		; xor ax, ax
+		; mov ah, 02
+		; mov dl, dh
+		; int 21h
+
+	endcom:
+ret
+cronom20 endp
+
 BoardDriver proc far
+    call restSecond
     call PrintHeaders
     call PrintPauseMessage
     call OpenFile   
     call ShowMouse
     call board
     go:
-  
-
+    call cronom20
     call isMoveNave
-  
-    
+    call delay    
 
-    call delay
-
-    ; call getNextLine
-    ; call move
-
-    
     jmp go
     call CloseFile
     ret
