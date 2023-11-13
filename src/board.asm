@@ -38,7 +38,7 @@ extrn printRectangle:far
     player_lives        db "Lives: ", '$'
     player_live_one     db 3, '$'
     player_live_two     db 3, '$'
-    player_live_three   db 3, '$'
+    player_live_three   db 32, '$'
     player_lives_x      db 1
     player_lives_y      db 62
     pause_message       db "Press P to pause the game", '$'
@@ -58,7 +58,7 @@ extrn printRectangle:far
     second              db 0
     isChangeSec         db 0
     miliSec             db 0
-    gameDelay           db 60
+    gameDelay           db 99
     nextSeco            db 0
     minute              db 0
     isChange            db 0 
@@ -312,7 +312,9 @@ ColitionCmp proc
             lostLive:
                 mov [di],bh
                 jmp freeColision
-                
+                ;TODO: restar vidas
+                ;TODO: verificar si se perdio
+                ;TODO: Sonido colision
             getPoint:
                 mov [di],bl
                 jmp freeColision
@@ -328,49 +330,39 @@ ColitionCmp endp
 
 
 
-delay proc
+delay proc near
 	mov ah,2ch
 	int 21h
-    cmp isChangeSec, 1
-    je calcSecond
+
+    cmp dh, second
+    ja operaciones
+    jne endDelay
     cmp dl, miliSec
-    jb endDelay 
-    cmp second,dh
-    jne calcSecond
-    ; no hay que calcular
-    call getNextLine
-    call move
-    call board
-    call ColitionCmp
-    mov second, dh
-    mov bh, gameDelay
-    add miliSec, bh
-    cmp miliSec, 99
-    jna notAjust
-    sub miliSec, 99
-    mov isChangeSec, 1
-    jmp endDelay
-    ; hay que calcular
-    calcSecond:
-        cmp second,dh
-        je endDelay
-        cmp dl, miliSec 
-        jb endDelay
+    jb endDelay
+
+    operaciones:
         call getNextLine
         call move
         call board
         call ColitionCmp
         mov second, dh
         mov bh, gameDelay
+        mov miliSec, dl
         add miliSec, bh
         cmp miliSec, 99
-        jna notAjust
-        sub miliSec, 99
-        mov isChangeSec, 1
+        jnb Ajust
         jmp endDelay
-    notAjust:
-    mov isChangeSec, 0
+    Ajust:
+    sub miliSec, 99
+    inc second
+    cmp second, 60
+    jne endDelay
+    mov second, 0
+    mov ah, 02
+    mov dl, "s"
+    int 21h
     endDelay:
+    jmp go
 ret
 delay endp
 
@@ -433,10 +425,9 @@ BoardDriver proc far
     call ShowMouse
     call board
     go:
-    call cronom20
+   ; call cronom20
     call isMoveNave
     call delay    
-
     jmp go
     call CloseFile
     ret

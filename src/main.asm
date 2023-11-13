@@ -3,7 +3,7 @@
 ;
 .8086
 .model small
-.stack 100H
+.stack 200H
 extrn MenuDriver:far
 
 .data
