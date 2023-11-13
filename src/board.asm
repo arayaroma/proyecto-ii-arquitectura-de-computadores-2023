@@ -354,9 +354,9 @@ delay proc near
     cmp second, 60
     jne endDelay
     mov second, 0
-    mov ah, 02
-    mov dl, "s"
-    int 21h
+    ; mov ah, 02
+    ; mov dl, "s"
+    ; int 21h
     endDelay:
     
     ret
