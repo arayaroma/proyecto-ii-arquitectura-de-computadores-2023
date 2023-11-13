@@ -36,9 +36,7 @@ extrn printRectangle:far
     player_score_x      db 1
     player_score_y      db 38
     player_lives        db "Lives: ", '$'
-    player_live_one     db 3, '$'
-    player_live_two     db 3, '$'
-    player_live_three   db 32, '$'
+    player_lives_value  db 3, '$'
     player_lives_x      db 1
     player_lives_y      db 62
     pause_message       db "Press P to pause the game", '$'
@@ -101,15 +99,15 @@ PrintHeaders proc near
 
     mov dh, [player_lives_x]
     mov dl, [player_lives_y+2]
-    lea dx, player_live_one
+    lea dx, player_lives_value
     call PrintMessage
 
     mov dl, [player_lives_y+3]
-    lea dx, player_live_two
+    lea dx, player_lives_value
     call PrintMessage
 
     mov dl, [player_lives_y+4]
-    lea dx, player_live_three
+    lea dx, player_lives_value
     call PrintMessage
     ret
 PrintHeaders endp
