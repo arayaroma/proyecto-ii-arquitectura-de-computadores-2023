@@ -219,8 +219,7 @@ isMoveNave proc
     mov ah,00h
     int 16h
 
-    cmp al,0
-    je isMoveNaveZero
+
   ;  cmp isMove, 1
     ;je endMove
 
@@ -252,9 +251,8 @@ isMoveNave proc
         mov [si], al
         mov al, 'n'
         mov [si-1], al
-        call board
-        call ColitionCmp
-        ret 
+
+        jmp endMove 
     moveDown:
         cmp posNave, 10
         je endMove
@@ -273,13 +271,11 @@ isMoveNave proc
         mov [si], al
         mov al, 'n'
         mov [si+1], al
-        call board 
-        call ColitionCmp
-            ret
-    isMoveNaveZero:
-  ;  mov isMove, 0
+
     endMove:
-  
+    call ColitionCmp
+    call board 
+
 ret
 isMoveNave endp
 
@@ -323,7 +319,7 @@ ColitionCmp proc
             inc di
             jmp loopColition
         endColition:
-        call board
+        
 
     ret
 ColitionCmp endp
@@ -333,7 +329,7 @@ ColitionCmp endp
 delay proc near
 	mov ah,2ch
 	int 21h
-
+    
     cmp dh, second
     ja operaciones
     jne endDelay
@@ -343,8 +339,8 @@ delay proc near
     operaciones:
         call getNextLine
         call move
-        call board
         call ColitionCmp
+        call board
         mov second, dh
         mov bh, gameDelay
         mov miliSec, dl
@@ -362,8 +358,8 @@ delay proc near
     mov dl, "s"
     int 21h
     endDelay:
-    jmp go
-ret
+    
+    ret
 delay endp
 
 

@@ -7,7 +7,7 @@ movimiento db 10 dup(" "),"$"
 
 .code
 
-move PROC 
+move proc far
     push ax cx 
 
 lea SI, pattern
