@@ -16,12 +16,12 @@ bin\tasm /zi src\score.asm
 bin\tasm /zi src\about.asm
 bin\tasm /zi src\option.asm
 bin\tlink /v main.obj ascii.obj graphic.obj menu.obj mouse.obj board.obj move.obj file.obj score.obj option.obj about.obj
-
+pause
 :: copy the files
 copy *.obj target
 del *.obj
 copy *.map target
-del *.map 
+del *.map  
 copy *.exe target
 del *.exe
 

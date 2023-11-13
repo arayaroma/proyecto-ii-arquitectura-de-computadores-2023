@@ -16,7 +16,7 @@ extrn move:far
 
 ; option.asm
 extrn nombre:byte
-
+extrn levelCount:byte
 ; mouse.asm
 extrn ShowMouse:far
 extrn SetMousePosition:far
@@ -25,6 +25,7 @@ extrn SetMousePosition:far
 extrn ClearScreen:far
 extrn PrintMessage:far
 extrn printRectangle:far
+
 
 .data 
     endless_runners     db "Endless Runners", '$'
@@ -36,6 +37,7 @@ extrn printRectangle:far
     player_score_x      db 1
     player_score_y      db 38
     player_lives        db "Lives: ", '$'
+    player_lives_cant   db 3, '$'
     player_lives_value  db 3, '$'
     player_lives_x      db 1
     player_lives_y      db 62
@@ -43,7 +45,7 @@ extrn printRectangle:far
     pause_message_x     db 28
     pause_message_y     db 4
     pattern             db 250 dup(' ')	,'$'
-    nave                db "     N    ", '$'
+    nave                db "     n    ", '$'
     posNave             db 6
     collision           db 10 dup(' ') , '$'
     isMove              db 0
@@ -56,7 +58,7 @@ extrn printRectangle:far
     second              db 0
     isChangeSec         db 0
     miliSec             db 0
-    gameDelay           db 99
+    gameDelay           db 40
     nextSeco            db 0
     minute              db 0
     isChange            db 0 
@@ -99,16 +101,16 @@ PrintHeaders proc near
 
     mov dh, [player_lives_x]
     mov dl, [player_lives_y+2]
-    lea dx, player_lives_value
-    call PrintMessage
+    xor cx, cx
+    MOV Cl, player_lives_cant
+    cmp cx, 0
+    je endHeader
+    printLives:
+        lea dx, player_lives_value
+        call PrintMessage
 
-    mov dl, [player_lives_y+3]
-    lea dx, player_lives_value
-    call PrintMessage
-
-    mov dl, [player_lives_y+4]
-    lea dx, player_lives_value
-    call PrintMessage
+    loop printLives
+    endHeader:
     ret
 PrintHeaders endp
 
@@ -120,6 +122,90 @@ PrintPauseMessage proc near
     call PrintMessage
     ret
 PrintPauseMessage endp
+
+caluDelay proc near
+    cmp levelCount, 1
+    je level1
+    cmp levelCount, 2
+    je level2
+    cmp levelCount, 3
+    je level3
+    cmp levelCount, 4
+    je level4
+    cmp levelCount, 5
+    je level5
+    cmp levelCount, 6
+    je level6
+    cmp levelCount, 7
+    je level7
+    cmp levelCount, 8
+    je level8
+    cmp levelCount, 9
+    je level9
+    cmp levelCount, 10
+    je level10
+    cmp levelCount, 11
+    je level11
+    cmp levelCount, 12
+    je level12
+    cmp levelCount, 13
+    je level13
+    cmp levelCount, 14
+    je level14
+    cmp levelCount, 15
+    je level15
+
+
+    ; UP LVE  gameDelay = 100*0.95 
+    level1:
+    mov gameDelay, 100
+    jmp endCaluDelay
+    level2:
+    mov gameDelay, 95
+    jmp endCaluDelay
+    level3:
+    mov gameDelay, 90
+    jmp endCaluDelay
+    level4:
+    mov gameDelay, 85
+    jmp endCaluDelay
+    level5:
+    mov gameDelay, 80
+    jmp endCaluDelay
+    level6:
+    mov gameDelay, 75
+    jmp endCaluDelay
+    level7:
+    mov gameDelay, 70
+    jmp endCaluDelay
+    level8:
+    mov gameDelay, 65
+    jmp endCaluDelay
+    level9:
+    mov gameDelay, 60
+    jmp endCaluDelay
+    level10:
+    mov gameDelay, 55
+    jmp endCaluDelay
+    level11:
+    mov gameDelay, 50
+    jmp endCaluDelay
+    level12:
+    mov gameDelay, 45
+    jmp endCaluDelay
+    level13:
+    mov gameDelay, 40
+    jmp endCaluDelay
+    level14:
+    mov gameDelay, 35
+    jmp endCaluDelay
+    level15:
+    mov gameDelay, 30
+    jmp endCaluDelay
+    endCaluDelay:
+    
+ret
+caluDelay endp
 
 board PROC far
 push ax bx cx dx
@@ -212,7 +298,7 @@ isMoveNave proc
     MOV ah,0bh
     int 21h
     cmp al, 0
-    je endMove
+    je endNoMove
 
     mov ah,00h
     int 16h
@@ -223,14 +309,14 @@ isMoveNave proc
 
 
     cmp ax,0
-    je endMove
+    je endNoMove
     cmp al, 119 ;  w 
     je moveUp
     cmp al, 115 ; s
     je moveDown
     ;cmp al, 112 ;p ascii code 112
   ;  mov isMove, 0
-    jmp endMove
+    jmp endNoMove
     moveUp:
         cmp posNave, 1
         je endMove
@@ -273,9 +359,22 @@ isMoveNave proc
     endMove:
     call ColitionCmp
     call board 
-
+    endNoMove:  
 ret
 isMoveNave endp
+
+lostLiveProc proc near
+    cmp player_lives_cant, 0
+    je endGame
+    dec player_lives_cant
+
+    call ClearScreen
+    call PrintHeaders
+    call PrintPauseMessage
+    call board
+    endGame:
+    ret
+lostLiveProc endp
 
 ColitionCmp proc
 
@@ -305,7 +404,9 @@ ColitionCmp proc
             jmp freeColision
             lostLive:
                 mov [di],bh
+                call lostLiveProc
                 jmp freeColision
+
                 ;TODO: restar vidas
                 ;TODO: verificar si se perdio
                 ;TODO: Sonido colision
@@ -327,13 +428,24 @@ ColitionCmp endp
 delay proc near
 	mov ah,2ch
 	int 21h
-    
+    cmp second,0
+    je second0
     cmp dh, second
     ja operaciones
     jne endDelay
     cmp dl, miliSec
     jb endDelay
+    jmp operaciones
+    second0:
+        cmp dh, 59
+        jnb endDelay
 
+        cmp dh, second
+        ja operaciones
+        jne endDelay
+        cmp dl, miliSec
+        jb endDelay
+        
     operaciones:
         call getNextLine
         call move
@@ -381,6 +493,9 @@ restSecond proc
 
 restSecond endp
 
+
+
+
 cronom20 proc 
 	mov ah,2ch
 	int 21h
@@ -393,21 +508,23 @@ cronom20 proc
 		cmp minute, cl
 		je endcom
 		cmp dh,nextSeco
-		jnb print
+		jnb upLevel
 		jmp endcom
 	noEsperaCambio:
 		cmp dh,nextSeco
-		jnb print
+		jnb upLevel
 		jmp endcom
-	print:
+	upLevel:
 		call restSecond
-        ; call upLvl
-		; xor ax, ax
-		; mov ah, 02
-		; mov dl, dh
-		; int 21h
-
+        
+        cmp levelCount,15
+        je endUpLvl
+        inc levelCount
+        call caluDelay
+        
+        endUpLvl:
 	endcom:
+
 ret
 cronom20 endp
 
@@ -418,8 +535,9 @@ BoardDriver proc far
     call OpenFile   
     call ShowMouse
     call board
+    call caluDelay
     go:
-   ; call cronom20
+    call cronom20
     call isMoveNave
     call delay    
     jmp go

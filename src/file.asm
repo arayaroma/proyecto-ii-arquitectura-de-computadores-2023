@@ -25,7 +25,7 @@ extrn PrintMessage:far
 	; score					db "../src/patterns/score"
 	; score_handle			dw 0
     handle 					dw 0
-    letterCount 			dw 0
+
 	is_open_error           db ?
     is_read_error           db ?
     open_error_message      db "Error opening file!", '$'
@@ -171,7 +171,6 @@ OpenError endp
 ClearVariables proc near
 	xor cx, cx
 	mov handle, 0
-	mov letterCount, 0
 	ret
 ClearVariables endp
 

@@ -3,7 +3,7 @@
 ;
 .8086
 .model small
-public OptionDriver, nombre
+public OptionDriver, nombre, levelCount
 
 ; graphics.asm
 extrn ClearScreen:far
