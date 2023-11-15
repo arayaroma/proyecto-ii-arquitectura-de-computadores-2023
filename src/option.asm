@@ -87,77 +87,108 @@ PrintOption proc far
 
     add axisXOffset, 1
     add axisYOffset, 1
-
+            mov dh, 13
+            mov dl, 16
+            call SetMousePosition
     lea di, nombre
     loop_name:
             ; Espera una tecla y la almacena en AL
+            xor ax, ax
+            MOV ah,0bh
+            int 21h
+            cmp al, 0
+            je loop_name
+
+
             mov ah, 0
             int 16h
 
             inc letterCount
             cmp al, 8
             je delete_character
-
+            cmp al, 13
+            je end_loop_name
+            cmp al, 32
+            je loop_name
             ; Concatena la tecla al nombre
             mov [di], al
 
-            add axisYOffset, 1
+            ;add axisYOffset, 1
 
-            mov dh, [axisXOffset]
-            mov dl, [axisYOffset]
-            call SetMousePosition
+            ; mov dh, [axisXOffset]
+            ; mov dl, [axisYOffset]
+            ; call SetMousePosition
 
 
             ; Imprime el nombre
-            mov dx, di
-            call PrintMessage
+            mov ah,2
+            mov dl,al
+            int 21h
+            ; mov dx, di
+            ; call PrintMessage
             inc di
             ; Comprueba si se presionó la tecla Enter (código ASCII 13)
-            cmp al, 13
-            je end_loop_name
+            
 
         jmp loop_name
 
     delete_character:
+            mov ah,2
+            mov dl,8
+            int 21h
+
+            mov ah,2
+            mov dl,' '
+            int 21h
+
+
+            mov ah,2
+            mov dl,8
+            int 21h
+
+            dec di
+            mov byte ptr [di], 0
+
+            jmp loop_name
         ; Comprueba si el puntero al nombre ya está al comienzo
-        cmp di, offset nombre
-        je loop_name ; No se puede borrar más, así que vuelve a la entrada
+        ; cmp di, offset nombre
+        ; je loop_name ; No se puede borrar más, así que vuelve a la entrada
 
-        ; Retrocede el puntero en el nombre
-        dec di
+        ; ; Retrocede el puntero en el nombre
+        ; dec di
 
-        call ClearScreen
-        call clear_xy_position
+        ; call ClearScreen
+        ; call clear_xy_position
 
-        mov axisXOffset, 12
-        mov axisYOffset, 15
+        ; mov axisXOffset, 12
+        ; mov axisYOffset, 15
 
-        dec letterCount
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        call SetMousePosition
+        ; dec letterCount
+        ; mov dh, [axisXOffset]
+        ; mov dl, [axisYOffset]
+        ; call SetMousePosition
 
-        mov dx, offset mensaje
-        call PrintMessage
+        ; mov dx, offset mensaje
+        ; call PrintMessage
 
-        add axisXOffset, 1
-        add axisYOffset, 2
+        ; add axisXOffset, 1
+        ; add axisYOffset, 2
 
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        call SetMousePosition
+        ; mov dh, [axisXOffset]
+        ; mov dl, [axisYOffset]
+        ; call SetMousePosition
 
-        ; Limpia el carácter borrado
-        mov byte ptr [di], 0
+        ; ; Limpia el carácter borrado
+        ; mov byte ptr [di], 0
 
-        mov dx, offset nombre
-        call PrintMessage
+        ; mov dx, offset nombre
+        ; call PrintMessage
 
 
-        add axisYOffset, offset letterCount
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        call SetMousePosition
+        ; add axisYOffset, offset letterCount
+        ; mov dh, [axisXOffset]
+        ; mov dl, [axisYOffset]
+        ; call SetMousePosition
 
 
     jmp loop_name

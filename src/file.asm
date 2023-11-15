@@ -30,9 +30,9 @@ extrn PrintMessage:far
     is_read_error           db ?
     open_error_message      db "Error opening file!", '$'
     read_error_message      db "Error reading file!", '$'
-
+	randomNumber 			db 0
 .code
-	
+
 ; OpenFile
 ; 
 ; AL = 0 (read only), 1 (write only), 2 (read/write)
@@ -42,7 +42,9 @@ extrn PrintMessage:far
 ; DS:DX = address of buffer
 ;
 OpenFile proc far
+
 	call ClearVariables
+	call generateBasicRandomNumber
 	mov ah, 3Dh
 	mov al, 00h
 	lea dx, filename
@@ -173,5 +175,24 @@ ClearVariables proc near
 	mov handle, 0
 	ret
 ClearVariables endp
+
+generateBasicRandomNumber proc
+	mov ax, 40h
+	mov es, ax
+	mov ax, [es:6Ch]
+	and al, 00000111b
+	mov [randomNumber], al
+	mov ax, 40h
+	mov es, ax
+	mov ax, [es:6Ch]
+	and al, 00000001b
+	add [randomNumber], al
+	mov ax, 40h
+	mov es, ax
+	mov ax, [es:6Ch]
+	and al, 00000001b
+	add [randomNumber], al
+	ret
+generateBasicRandomNumber endp
 
 end
