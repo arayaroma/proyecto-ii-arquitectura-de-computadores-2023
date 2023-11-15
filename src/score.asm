@@ -4,7 +4,10 @@
 .8086
 .model small
 public ScoreboardDriver
+public ConvertScoreTxt
 
+;board 
+extrn scorePlayer:word , player_score_value:byte
 ; mouse.asm
 extrn SetMousePosition:far
 extrn ShowMouse:far
@@ -32,18 +35,54 @@ extrn nombre:byte
 	puntaje1Int dw  0 
 	puntaje2Int dw  0 
 	puntaje3Int dw  0 
-	puntajeOriginal dw 0
+	
 	puntajeTexto db 10 dup(" "), 10,13, "$"
 	resultPuntaje  db 10 dup(" ")
-	txt db "", 0
+	txt db " ", 0
 .code
+
+ConvertScoreTxt proc far
+
+	mov bx,10
+	mov ax, scorePlayer 
+	lea si,resultPuntaje
+	inc si
+	xor cx,cx
+	loopConvert:
+	inc cx 
+	xor dx, dx
+	div bx
+	add dx, 48  
+	mov [si],dx 
+	
+	cmp ax, 0
+	je endLoop
+	inc si
+	jmp loopConvert
+	endLoop:
+	lea di, player_score_value
+	loop_next_number:
+	mov al, [si]
+	mov [di],al
+	inc di
+	dec si
+	mov al, [si]
+
+	;je end_convert
+	loop loop_next_number
+	end_convert:
+		mov al, '$'
+		mov [di], al
+
+	ret
+ConvertScoreTxt endp
 
 openReadScore proc near
 	mov ah, 3Dh
 	mov al,00h
     lea dx, score
     int 21h
-    mov handle, ax ; 
+    mov handle, ax
 ret
 openReadScore endp
 
@@ -216,5 +255,8 @@ ScoreboardDriver proc far
     call ShowMouse
     ret
 ScoreboardDriver endp
+
+
+
 
 end

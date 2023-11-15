@@ -23,5 +23,5 @@ del *.map
 
 copy main.exe target
 del main.exe
-
+pause
 bin\td target\main.exe

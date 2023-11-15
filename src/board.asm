@@ -7,7 +7,7 @@
 public BoardDriver     
 public px, py, colorPaint
 public pattern, collision
-
+public scorePlayer, player_score_value
 ; file.asm
 extrn OpenFile:far, getNextLine:far, CloseFile:far
 
@@ -25,7 +25,8 @@ extrn SetMousePosition:far
 extrn ClearScreen:far
 extrn PrintMessage:far
 extrn printRectangle:far
-
+; score
+extrn ConvertScoreTxt:far
 
 .data 
     endless_runners     db "Endless Runners", '$'
@@ -33,7 +34,7 @@ extrn printRectangle:far
     player_name_x       db 1
     player_name_y       db 14
     player_score        db "Score: ", '$'
-    player_score_value  db "0", '$'
+    player_score_value  db 10 dup(" "), 10,13,'$'
     player_score_x      db 1
     player_score_y      db 38
     player_lives        db "Lives: ", '$'
@@ -62,9 +63,12 @@ extrn printRectangle:far
     nextSeco            db 0
     minute              db 0
     isChange            db 0 
+    scorePlayer         dw 0
 .Code
 
 PrintHeaders proc near
+    inc scorePlayer
+    call ConvertScoreTxt
     mov dh, 0
     mov dl, 34
     call SetMousePosition
@@ -449,6 +453,7 @@ delay proc near
     operaciones:
         call getNextLine
         call move
+
         call ColitionCmp
         call board
         mov second, dh
