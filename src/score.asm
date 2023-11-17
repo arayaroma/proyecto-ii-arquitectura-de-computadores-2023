@@ -5,7 +5,7 @@
 .model small
 public ScoreboardDriver
 public ConvertScoreTxt
-
+public driverValidate
 ;board 
 extrn scorePlayer:word , player_score_value:byte
 ; mouse.asm
@@ -36,7 +36,7 @@ extrn nombre:byte
 	puntaje2Int dw  0 
 	puntaje3Int dw  0 
 	
-	puntajeTexto db 10 dup(" "), 10,13, "$"
+
 	auxNumberConvert  db 10 dup(" ")
 	txt db " ", 0
 .code
@@ -193,6 +193,17 @@ inc_buffer proc near
 	ret
 inc_buffer endp
 
+calcular_logitud proc near
+calcular:
+        cmp byte ptr [di], '$'
+        je fin_calcular_longitud
+        inc di
+        inc cx
+        jmp calcular
+    fin_calcular_longitud:
+ret
+calcular_logitud endp
+
 close_file proc near
 ; Cerrar el archivo
 		MOV AH, 3EH
@@ -254,6 +265,7 @@ PrintScore proc near
     call PrintMessage
     ret
 PrintScore endp
+
 ScoreboardDriver proc far
     call ClearScreen
     call openReadScore
@@ -272,7 +284,323 @@ ScoreboardDriver proc far
     ret
 ScoreboardDriver endp
 
+clear_file proc near
+		; Abrir el archivo con la opción de escritura (truncate)
+		; Abrir el archivo para escritura (o creación si no existe)
+		mov ah, 3Ch
+		lea dx, score
+		mov cx, 0 ; Modo de apertura, 0 significa crear o abrir para escritura
+		int 21h
+		xor ax,ax
+		xor si,si
+		mov handle, ax ; Almacenar el handle del archivo en handle
+		lea si, txt
+		; Escribir en el archivo
+		mov ah, 40h
+		mov bx, handle
+		mov cx, 30 ; Número de bytes a escribir
+		lea dx, [si]
+		int 21h
+ret
+clear_file endp
+
+espacio_blanco proc near
+	xor si, si
+	mov al, ' '
+    mov [si], al
+	mov ah, 40h
+    mov bx, handle
+    mov cx, 1 ; Número de bytes a escribir
+    lea dx, [si]
+    int 21h
+	xor si, si
+ret 
+espacio_blanco endp
+
+write_file proc near
+ ; Abrir el archivo para escritura (o creación si no existe)
+    mov ah, 3Ch
+    lea dx, score
+    mov cx, 0 ; Modo de apertura, 0 significa crear o abrir para escritura
+    int 21h
+	
+    mov handle, ax ; Almacenar el handle del archivo en handle}
+	
+	xor di,di
+	lea di, nombre1
+	xor cx,cx
+	call calcular_logitud
+	lea di, nombre1
+    ; Escribir en el archivo
+    mov ah, 40h
+    mov bx, handle
+    lea dx, [di]
+    int 21h
+	
+	call espacio_blanco
+	
+	xor di,di
+	lea di, puntaje1
+	xor cx,cx
+	call calcular_logitud
+	lea di, puntaje1
+    ; Escribir en el archivo
+    mov ah, 40h
+    mov bx, handle
+    lea dx, [di]
+    int 21h
+	
+	
+	call espacio_blanco
+	
+	xor di,di
+	lea di, nombre2
+	xor cx,cx
+	call calcular_logitud
+	lea di, nombre2
+    ; Escribir en el archivo
+    mov ah, 40h
+    mov bx, handle
+    lea dx, [di]
+    int 21h
+	
+	call espacio_blanco
+	
+	
+	xor di,di
+	lea di, puntaje2
+	xor cx,cx
+	call calcular_logitud
+	lea di, puntaje2
+    ; Escribir en el archivo
+    mov ah, 40h
+    mov bx, handle
+    lea dx, [di]
+    int 21h
+	
+	call espacio_blanco
+	
+	
+	xor di,di
+	lea di, nombre3
+	xor cx,cx
+	call calcular_logitud
+	lea di, nombre3
+    ; Escribir en el archivo
+    mov ah, 40h
+    mov bx, handle
+    lea dx, [di]
+    int 21h
+	
+	call espacio_blanco
+
+	xor dx, dx
+	xor ax,ax
+	xor di,di
+	lea di, puntaje3
+	xor cx,cx
+	call calcular_logitud
+	lea di, puntaje3
+    mov ah, 40h
+    mov bx, handle
+    lea dx, [di]
+    int 21h
+	
+	xor si, si
+	mov al, '#'
+    mov [si], al
+	mov ah, 40h
+    mov bx, handle
+    mov cx, 1 ; Número de bytes a escribir
+    lea dx, [si]
+    int 21h
+	xor si, si
+	
+ret 
+write_file endp
+
+validaciones proc near
+	
+	xor dx, dx
+	mov dx, scorePlayer
+	cmp dx, puntaje1Int
+	jae end_validate  
+	call evaluate3_position
+	
+	mov dx, scorePlayer
+	cmp dx,puntaje2Int
+	jae end_validate
+	call evaluate2_position
+
+	mov dx, scorePlayer
+	cmp dx, puntaje3Int
+	jae end_validate
+	call evaluate1_position
+	
+end_validate:
+ret
+validaciones endp 
+
+driverValidate proc far
+	call openReadScore
+	    mov ah, 0
+    int 16h
+	call read_file
+		    mov ah, 0
+    int 16h
+	call close_file
+		    mov ah, 0
+    int 16h
+	call validaciones	
+		    mov ah, 0
+    int 16h
+	call clear_file
+		    mov ah, 0
+    int 16h
+	call close_file
+		    mov ah, 0
+    int 16h
+	call write_file
+		    mov ah, 0
+    int 16h
+	call close_file
+		    mov ah, 0
+    int 16h
+
+ret
+driverValidate endp
+
+evaluate3_position proc near
+		mov nombre1, 0
+		mov al, ' '
+		lea di, nombre1
+		clear_name3:
+			mov [di],al
+			mov ah,[di+1]
+			cmp ah, '$'
+			je end_clear_name3
+			inc di
+			jmp clear_name3
+		end_clear_name3:
+		lea si, nombre
+		lea di, nombre1
+		changeName3:
+			mov ah,[si]
+			mov [di],ah
+			cmp ah, '$'
+			je end_ChangeName3
+			inc si
+			inc di
+			jmp changeName3
+		end_ChangeName3:
+		lea si, player_score_value
+		lea di, puntaje1
+		changePuntaje3:
+			mov ah,[si]
+			mov [di],ah
+			cmp ah, '$'
+			je end_evaluate3
+			inc si
+			inc di
+		jmp changePuntaje3
+end_evaluate3:
+ret
+evaluate3_position endp
+
+evaluate2_position proc near
+    ; Intercambiar los valores
+    mov si, offset nombre1 ; Cargar la dirección de nombre1 en si
+    mov di, offset nombre ; Cargar la dirección de buffer en di
+
+    mov cx,128 ; Número de bytes a intercambiar (longitud de las cadenas, incluyendo el caracter '$')
+    call changeName ; Llamar a la función para intercambiar
+
+    mov si, offset nombre2 ; Cargar la dirección de nombre2 en si
+    mov di, offset nombre1 ; Cargar la dirección de nombre1 en di
+	mov cx,128
+    call changeName ; Llamar a la función para intercambiar
+
+    mov si, offset nombre ; Cargar la dirección de buffer en si
+    mov di, offset nombre2 ; Cargar la dirección de nombre2 en di
+	mov cx,128
+    call changeName ; Llamar a la función para intercambiar
+	
+	mov si, offset puntaje2 ; Cargar la dirección de buffer en si
+    mov di, offset player_score_value ; Cargar la dirección de nombre2 en di
+	mov cx,128
+    call changeName ; Llamar a la función para intercambiar
+	
+	mov si, offset puntaje1 ; Cargar la dirección de buffer en si
+    mov di, offset puntaje2 ; Cargar la dirección de nombre2 en di
+	mov cx,128
+    call changeName ; Llamar a la función para intercambiar
+	
+	mov si, offset player_score_value ; Cargar la dirección de buffer en si
+    mov di, offset puntaje1 ; Cargar la dirección de nombre2 en di
+	mov cx,128
+    call changeName ; Llamar a la función para intercambiar
+end_evaluate2:
+ret
+evaluate2_position endp
+
+evaluate1_position proc near
+    ; Intercambiar los valores
+    mov si, offset nombre2 ; Cargar la dirección de nombre1 en si
+    mov di, offset nombre ; Cargar la dirección de buffer en di
+
+    mov cx,128 ; Número de bytes a intercambiar (longitud de las cadenas, incluyendo el caracter '$')
+    call changeName ; Llamar a la función para intercambiar
+
+    mov si, offset nombre3 ; Cargar la dirección de nombre2 en si
+    mov di, offset nombre2 ; Cargar la dirección de nombre1 en di
+	mov cx,128
+    call changeName ; Llamar a la función para intercambiar
+
+    mov si, offset nombre ; Cargar la dirección de buffer en si
+    mov di, offset nombre3 ; Cargar la dirección de nombre2 en di
+	mov cx,128
+    call changeName ; Llamar a la función para intercambiar
+	
+	mov si, offset puntaje3 ; Cargar la dirección de buffer en si
+    mov di, offset player_score_value ; Cargar la dirección de nombre2 en di
+	mov cx,128
+    call changeName ; Llamar a la función para intercambiar
+	
+	mov si, offset puntaje2 ; Cargar la dirección de buffer en si
+    mov di, offset puntaje3 ; Cargar la dirección de nombre2 en di
+	mov cx,128
+    call changeName ; Llamar a la función para intercambiar
+	
+	mov si, offset player_score_value ; Cargar la dirección de buffer en si
+    mov di, offset puntaje2 ; Cargar la dirección de nombre2 en di
+	mov cx,128
+    call changeName ; Llamar a la función para intercambiar
+ret
+evaluate1_position endp
 
 
+changeName proc near
+    push ax
+    push bx
+    push cx
+    push si
+    push di
+
+    mov ax, ds
+    mov es, ax
+
+    ; Ajustar cx para incluir el caracter '$'
+    inc cx
+
+    rep movsb ; Mover los datos de ds:si a es:di
+
+    pop di
+    pop si
+    pop cx
+    pop bx
+    pop ax
+    ret
+
+changeName endp
 
 end

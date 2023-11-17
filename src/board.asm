@@ -8,9 +8,10 @@ public BoardDriver
 public px, py, colorPaint
 public pattern, collision
 public scorePlayer, player_score_value
+
 ; file.asm
 extrn OpenFile:far, getNextLine:far, CloseFile:far
-
+extrn driverValidate:far
 ; move.asm
 extrn move:far           
 
@@ -39,6 +40,7 @@ extrn ConvertScoreTxt:far
 
     endless_runners     db "Endless Runners", '$'
     player_name         db "Player: ", '$'
+    game_over_txt       db "Game Over", '$' 
     player_name_x       db 1
     player_name_y       db 14
     player_score        db "Score: ", '$'
@@ -74,6 +76,7 @@ extrn ConvertScoreTxt:far
     scorePlayer         dw 0
     levelTxtNumber      db 2 dup(' ') , '$'
     delayTxt            db 2 dup(' ') , '$'
+ 
 .Code
 
 PrintHeaders proc near
@@ -409,17 +412,22 @@ ret
 isMoveNave endp
 
 lostLiveProc proc near
-    cmp player_lives_cant, 0
-    je endGame
-    dec player_lives_cant
 
+    dec player_lives_cant
     call ClearScreen
     call PrintHeaders
     call PrintPauseMessage
     call board
+    cmp player_lives_cant, 0
+    je endGame
+    jmp endLostLive
     ; lea dx, [bonusPath]
     ; call PlayMusic
     endGame:
+    call CloseFile
+    call game_over
+    
+    endLostLive:
     ret
 lostLiveProc endp
 
@@ -540,8 +548,6 @@ restSecond proc
 restSecond endp
 
 
-
-
 cronom20 proc 
 	mov ah,2ch
 	int 21h
@@ -583,12 +589,14 @@ BoardDriver proc far
     call board
     call caluDelay
     call printScore
-    go:
+
+    playing:
     call cronom20
     call isMoveNave
     call delay    
-    jmp go
-    call CloseFile
+    jmp playing
+
+
     ret
 BoardDriver endp
 
@@ -653,5 +661,32 @@ errorcode:
     ret
 PlayMusic endp
 
+game_over proc near
 
+    call ClearScreen
+    call driverValidate
+    
+    mov ah, 0
+    int 16h
+    mov dh, 10
+    mov dl, 10
+    call SetMousePosition
+    call clear_register
+    lea dx, game_over_txt
+    call PrintMessage
+    mov ah, 0
+    int 16h
+ret
+game_over endp
+
+clear_register proc 
+    xor ax, ax
+    xor bx, bx
+    xor cx, cx
+    xor dx, dx
+    xor di, di
+    xor si, si
+
+ret
+clear_register endp
 end

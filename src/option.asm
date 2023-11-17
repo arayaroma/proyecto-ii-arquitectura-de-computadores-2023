@@ -150,57 +150,12 @@ PrintOption proc far
             mov byte ptr [di], 0
 
             jmp loop_name
-        ; Comprueba si el puntero al nombre ya está al comienzo
-        ; cmp di, offset nombre
-        ; je loop_name ; No se puede borrar más, así que vuelve a la entrada
-
-        ; ; Retrocede el puntero en el nombre
-        ; dec di
-
-        ; call ClearScreen
-        ; call clear_xy_position
-
-        ; mov axisXOffset, 12
-        ; mov axisYOffset, 15
-
-        ; dec letterCount
-        ; mov dh, [axisXOffset]
-        ; mov dl, [axisYOffset]
-        ; call SetMousePosition
-
-        ; mov dx, offset mensaje
-        ; call PrintMessage
-
-        ; add axisXOffset, 1
-        ; add axisYOffset, 2
-
-        ; mov dh, [axisXOffset]
-        ; mov dl, [axisYOffset]
-        ; call SetMousePosition
-
-        ; ; Limpia el carácter borrado
-        ; mov byte ptr [di], 0
-
-        ; mov dx, offset nombre
-        ; call PrintMessage
-
-
-        ; add axisYOffset, offset letterCount
-        ; mov dh, [axisXOffset]
-        ; mov dl, [axisYOffset]
-        ; call SetMousePosition
-
 
     jmp loop_name
 
-
-
-    ;end loop name
     end_loop_name:
-        ; call OpenScoreFile
-        ; call WriteScoreFile
-
-        ;escribir el nombre
+    mov al, "$"
+    mov [di], al
         call ClearScreen
         call clear_xy_position
 
@@ -527,10 +482,12 @@ GotoDecrement endp
 print_level_update proc near
     xor cx,cx
     mov cl, levelCount
+    dec cl
     inc_si:
         inc si
         inc si
     loop inc_si
+    
     mov cx, 2
     inc_level:
         mov ah,[si]
