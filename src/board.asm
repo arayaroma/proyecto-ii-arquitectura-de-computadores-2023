@@ -16,7 +16,7 @@ extrn move:far
 
 ; option.asm
 extrn nombre:byte
-extrn levelCount:byte
+extrn levelCount:byte, levelTxt:byte
 ; mouse.asm
 extrn ShowMouse:far
 extrn SetMousePosition:far
@@ -29,14 +29,22 @@ extrn printRectangle:far
 extrn ConvertScoreTxt:far
 
 .data 
+    bonusPath db "../src/audio/bonus.wav"
+
+    filehandle dw 0          ; Handle del archivo
+    bufferAudio db 0              ; Increase the bufferAudio size to 1 byte
+
+    delayAudio dw 20 
+    hit1Path  db "../src/audio/hit1.wav"
+
     endless_runners     db "Endless Runners", '$'
     player_name         db "Player: ", '$'
     player_name_x       db 1
     player_name_y       db 14
     player_score        db "Score: ", '$'
     player_score_value  db 10 dup(" "), 10,13,'$'
-    player_score_x      db 1
-    player_score_y      db 38
+    player_score_x      db 7
+    player_score_y      db 42
     player_lives        db "Lives: ", '$'
     player_lives_cant   db 3, '$'
     player_lives_value  db 3, '$'
@@ -64,13 +72,15 @@ extrn ConvertScoreTxt:far
     minute              db 0
     isChange            db 0 
     scorePlayer         dw 0
+    levelTxtNumber      db 2 dup(' ') , '$'
+    delayTxt            db 2 dup(' ') , '$'
 .Code
 
 PrintHeaders proc near
-    inc scorePlayer
-    call ConvertScoreTxt
+    
+    
     mov dh, 0
-    mov dl, 34
+    mov dl, 33
     call SetMousePosition
     lea dx, endless_runners
     call PrintMessage
@@ -86,16 +96,7 @@ PrintHeaders proc near
     lea dx, nombre
     call PrintMessage
 
-    mov dh, [player_score_x]
-    mov dl, [player_score_y]
-    call SetMousePosition
-    lea dx, player_score
-    call PrintMessage
-
-    mov dh, [player_score_x]
-    mov dl, [player_score_y+2]
-    lea dx, player_score_value
-    call PrintMessage
+    
 
     mov dh, [player_lives_x]
     mov dl, [player_lives_y]
@@ -115,6 +116,7 @@ PrintHeaders proc near
 
     loop printLives
     endHeader:
+    call printLvl
     ret
 PrintHeaders endp
 
@@ -126,6 +128,41 @@ PrintPauseMessage proc near
     call PrintMessage
     ret
 PrintPauseMessage endp
+
+printScore proc near
+    push ax dx 
+    inc scorePlayer
+    mov ax, scorePlayer
+    lea di, player_score_value
+    call ConvertScoreTxt
+    mov dh, [player_score_x]
+    mov dl, [player_score_y]
+    call SetMousePosition
+    lea dx, player_score
+    call PrintMessage
+
+    mov dh, [player_score_x]
+    mov dl, [player_score_y+2]
+    lea dx, player_score_value
+    call PrintMessage
+    pop dx ax
+    ret
+printScore endp
+
+printLvl proc 
+    mov dh, 7
+    mov dl, 20
+    call SetMousePosition
+    lea dx, levelTxt
+    call PrintMessage
+    xor ax, ax
+    mov al,levelCount
+    lea di, levelTxtNumber
+    call ConvertScoreTxt
+    lea dx, levelTxtNumber
+    call PrintMessage
+ret
+printLvl endp
 
 caluDelay proc near
     cmp levelCount, 1
@@ -162,7 +199,7 @@ caluDelay proc near
 
     ; UP LVE  gameDelay = 100*0.95 
     level1:
-    mov gameDelay, 100
+    mov gameDelay, 99
     jmp endCaluDelay
     level2:
     mov gameDelay, 95
@@ -207,7 +244,16 @@ caluDelay proc near
     mov gameDelay, 30
     jmp endCaluDelay
     endCaluDelay:
-    
+    xor ax, ax
+    mov al,gameDelay
+    lea di, delayTxt
+    call ConvertScoreTxt
+    mov dh, 0
+    mov dl, 0
+    call SetMousePosition
+    lea dx, delayTxt
+    call PrintMessage
+    call printLvl
 ret
 caluDelay endp
 
@@ -307,11 +353,6 @@ isMoveNave proc
     mov ah,00h
     int 16h
 
-
-  ;  cmp isMove, 1
-    ;je endMove
-
-
     cmp ax,0
     je endNoMove
     cmp al, 119 ;  w 
@@ -319,7 +360,7 @@ isMoveNave proc
     cmp al, 115 ; s
     je moveDown
     ;cmp al, 112 ;p ascii code 112
-  ;  mov isMove, 0
+
     jmp endNoMove
     moveUp:
         cmp posNave, 1
@@ -376,6 +417,8 @@ lostLiveProc proc near
     call PrintHeaders
     call PrintPauseMessage
     call board
+    ; lea dx, [bonusPath]
+    ; call PlayMusic
     endGame:
     ret
 lostLiveProc endp
@@ -402,7 +445,7 @@ ColitionCmp proc
             naveColicion2:
             cmp al,'*'
             je lostLive
-            cmp al,'c'
+            cmp al,'a'
             je getPoint
             mov [di],bl
             jmp freeColision
@@ -446,7 +489,7 @@ delay proc near
 
         cmp dh, second
         ja operaciones
-        jne endDelay
+
         cmp dl, miliSec
         jb endDelay
         
@@ -456,6 +499,7 @@ delay proc near
 
         call ColitionCmp
         call board
+        call printScore
         mov second, dh
         mov bh, gameDelay
         mov miliSec, dl
@@ -469,9 +513,6 @@ delay proc near
     cmp second, 60
     jne endDelay
     mov second, 0
-    ; mov ah, 02
-    ; mov dl, "s"
-    ; int 21h
     endDelay:
     
     ret
@@ -541,6 +582,7 @@ BoardDriver proc far
     call ShowMouse
     call board
     call caluDelay
+    call printScore
     go:
     call cronom20
     call isMoveNave
@@ -549,5 +591,67 @@ BoardDriver proc far
     call CloseFile
     ret
 BoardDriver endp
+
+read proc near   ; Read next sample
+    push bx
+    push cx
+    push dx
+    mov ah, 3Fh
+    mov bx, [filehandle]
+    mov cx, 1
+    lea dx, [bufferAudio]
+    int 21h
+    cmp cx, ax 
+    je errorcode
+    mov al, [bufferAudio]
+    xor ah, ah
+    mov bl, 54
+    mul bx
+    shr ax, 8
+    jmp endxd
+
+
+
+    endxd:
+    pop dx
+    pop cx
+    pop bx
+    ret
+read endp
+
+
+
+PlayMusic proc near
+    mov ah, 3Dh
+    xor al, al
+  
+    int 21h
+    mov [filehandle], ax
+    mov al, 90h
+    out 43h, al
+    in al, 61h
+    or al, 3
+    out 61h, al
+    cli
+    mov ax, 0
+totalloop:
+    call read ; Read file
+    out 42h, al ; Send data
+    mov cx, [delayAudio]
+rloop:
+    loop rloop
+    jmp totalloop
+    ret
+errorcode:
+    ;Close
+    sti
+    mov al, 86h
+    out 43h, al
+    mov ah, 3Eh
+    mov bx, [filehandle]
+    int 21h
+    ret
+PlayMusic endp
+
 
 end

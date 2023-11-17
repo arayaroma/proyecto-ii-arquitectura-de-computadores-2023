@@ -3,7 +3,7 @@
 ;
 .8086
 .model small
-public OptionDriver, nombre, levelCount
+public OptionDriver, nombre, levelCount, levelTxt
 
 ; graphics.asm
 extrn ClearScreen:far
@@ -37,14 +37,14 @@ extrn mouseStatus:word
 incrementLevel db '+', '$'
 decrementLevel db '-', '$'
 option_text db 'Option', '$'
-level db 'Level:', '$'
+levelTxt db 'Level:', '$'
 levelNumber db '010203040506070809101112131415', '$'
 mensaje db "Presiona en cualquier lugar y escribe tu nombre:", '$'
 play db "Jugar", '$'
 level_message db "Selecciona el nivel:", '$'
 nombre db 20 dup(' '), "$"
 levelNumberAux db 2 dup(" "), "$"
-levelCount db 0
+levelCount db 1
 axisYOffset db ?
 axisXOffset db ?
 letterCount db 0
@@ -250,7 +250,7 @@ PrintOption proc far
         mov dl, [axisYOffset]
         call SetMousePosition
 
-        mov dx, offset level
+        mov dx, offset levelTxt
         call PrintMessage
 
 

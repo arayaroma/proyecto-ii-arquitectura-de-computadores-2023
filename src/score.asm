@@ -37,15 +37,31 @@ extrn nombre:byte
 	puntaje3Int dw  0 
 	
 	puntajeTexto db 10 dup(" "), 10,13, "$"
-	resultPuntaje  db 10 dup(" ")
+	auxNumberConvert  db 10 dup(" ")
 	txt db " ", 0
 .code
 
-ConvertScoreTxt proc far
 
+clear_AuxNumber proc near
+	push ax
+	lea si, auxNumberConvert
+	mov cx, 10
+	clear_loop:
+	mov al, 0
+	mov [si], al
+	inc si
+	loop clear_loop
+	pop ax
+	ret
+clear_AuxNumber endp
+
+; ax, numero a convertir
+
+; di, resultado
+ConvertScoreTxt proc far
+	call clear_AuxNumber
 	mov bx,10
-	mov ax, scorePlayer 
-	lea si,resultPuntaje
+	lea si,auxNumberConvert
 	inc si
 	xor cx,cx
 	loopConvert:
@@ -60,7 +76,7 @@ ConvertScoreTxt proc far
 	inc si
 	jmp loopConvert
 	endLoop:
-	lea di, player_score_value
+	;lea di, player_score_value
 	loop_next_number:
 	mov al, [si]
 	mov [di],al
