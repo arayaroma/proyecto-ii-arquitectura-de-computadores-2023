@@ -5,21 +5,27 @@
 .model small
 public printRectangle, PrintBackButton
 public SetVideoMode, ClearScreen, PrintMessage
+public back_x1, back_y1, back_x2, back_y2
+public OnActionBackButton
 
 ; about.asm
 extrn GoBackMenu:far
 
 ; mouse.asm
-extrn SetMousePosition:far
+extrn SetMousePosition:far, GetMousePosition:far
 
 ; rectangle.asm
-extrn px:byte, py:byte, colorPaint:byte
-extrn printLine:far 
+extrn px:byte, py:byte, colorPaint:byte, printLine:far 
 
 .data
-    button_label    db 'Back', '$'
-    axis_x          db ?
-    axis_y          db ?
+    button_label            db 'Back', '$'
+    axis_x                  db ?
+    axis_y                  db ?
+    back_x1                 dw 0
+    back_y1                 dw 0
+    back_x2                 dw 40
+    back_y2                 dw 15
+    is_in_back_area         db 0
 
 .code
 
@@ -58,6 +64,31 @@ PrintMessage proc far
     int 21H
     ret
 PrintMessage endp
+
+; OnActionBackButton
+; Checks if the mouse is in the back button
+;
+OnActionBackButton proc near
+    call GetMousePosition
+    cmp cx, [back_x1]
+    jl not_in_back_button
+    cmp cx, [back_x2]
+    jg not_in_back_button
+    cmp dx, [back_y1]
+    jl not_in_back_button
+    cmp dx, [back_y2]
+    jg not_in_back_button
+
+    mov [is_in_back_area], 1
+    jmp end_action_back_button
+
+not_in_back_button:
+    mov [is_in_back_area], 0
+    jmp end_action_back_button
+
+end_action_back_button:
+    ret
+OnActionBackButton endp
 
 ;   PrintBackButton
 ;

@@ -6,6 +6,8 @@
 public ShowMouse, HideMouse, SetMousePosition, GetMousePosition
 public mouseX, mouseY, mouseXText, mouseYText
 public is_mouse_in, mouseStatus
+public GetKeyPressed
+
 
 ; graphics.asm
 extrn PrintMessage:far
@@ -19,6 +21,30 @@ extrn PrintMessage:far
     is_mouse_in     dw ?
 
 .code
+
+; GetKeyPressed
+;
+; int 21H, ah = 01H
+; zero flag = 1 if no key pressed
+;
+; int 21H, ah = 00H
+; ah = 00H
+;
+; returns:
+; al = key code
+; ax = 0 if no key pressed
+;
+GetKeyPressed proc far
+    mov ah, 01H
+    int 21H
+    jz no_key_pressed
+    mov ah, 00H
+    int 21H
+    ret
+no_key_pressed:
+    mov ax, 0
+    ret
+GetKeyPressed endp
 
 ; ShowMouse
 ;

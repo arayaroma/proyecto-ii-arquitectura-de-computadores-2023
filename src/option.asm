@@ -1,25 +1,34 @@
 ; option.asm
 ; author: abarcajesus
+; author: arayaroma
 ;
 .8086
 .model small
 public OptionDriver, nombre, levelCount, levelTxt
 
-; graphics.asm
-extrn ClearScreen:far
-extrn ShowMouse:far
-extrn PrintMessage:far
-
 ; board.asm
 extrn BoardDriver:far
 
-; file.asm
-; extrn OpenScoreFile:far
-; extrn WriteScoreFile:far
+; about.asm
+extrn OnActionBackButton:far
+
+; menu.asm
+extrn MenuDriver:far
 
 ; ascii.asm
 extrn ConvertToASCII:far
 extrn DisplayASCII:far
+
+; graphics.asm
+extrn ClearScreen:far
+extrn ShowMouse:far
+extrn PrintMessage:far
+extrn PrintBackButton:far
+extrn is_in_back_area:byte
+extrn back_x1:word
+extrn back_y1:word
+extrn back_x2:word
+extrn back_y2:word
 
 ; mouse.asm
 extrn GetMousePosition:far
@@ -33,46 +42,120 @@ extrn mouseY:word
 extrn is_mouse_in:word
 extrn mouseStatus:word
 
+
 .data
-incrementLevel db '+', '$'
-decrementLevel db '-', '$'
-option_text db 'Option', '$'
-levelTxt db 'Level:', '$'
-levelNumber db '010203040506070809101112131415', '$'
-mensaje db "Presiona en cualquier lugar y escribe tu nombre:", '$'
-play db "Jugar", '$'
-level_message db "Selecciona el nivel:", '$'
-nombre db 20 dup(' '), "$"
-levelNumberAux db 2 dup(" "), "$"
-levelCount db 1
-axisYOffset db ?
-axisXOffset db ?
-letterCount db 0
-increment_text_x1 dw 357
-increment_text_y1 dw 322
-increment_text_x2 dw 369
-increment_text_y2 dw 332
+    incrementLevel              db '+', '$'
+    decrementLevel              db '-', '$'
+    option_text                 db 'Option', '$'
+    levelTxt                    db 'Level:', '$'
+    levelNumber                 db '010203040506070809101112131415', '$'
+    mensaje                     db "Presiona en cualquier lugar y escribe tu nombre:", '$'
+    play                        db "Jugar", '$'
+    level_message               db "Selecciona el nivel:", '$'
+    nombre                      db 20 dup(' '), "$"
+    levelNumberAux              db 2 dup(" "), "$"
+    levelCount                  db 1
+    axisYOffset                 db ?
+    axisXOffset                 db ?
+    letterCount                 db 0
+    increment_text_x1           dw 357
+    increment_text_y1           dw 322
+    increment_text_x2           dw 369
+    increment_text_y2           dw 332
 
-decrement_text_x1 dw 259
-decrement_text_y1 dw 322
-decrement_text_x2 dw 273
-decrement_text_y2 dw 332
+    decrement_text_x1           dw 259
+    decrement_text_y1           dw 322
+    decrement_text_x2           dw 273
+    decrement_text_y2           dw 332
 
-play_text_x1 dw 301
-play_text_y1 dw 367
-play_text_x2 dw 347
-play_text_y2 dw 379
+    play_text_x1                dw 301
+    play_text_y1                dw 367
+    play_text_x2                dw 347
+    play_text_y2                dw 379
 
-is_in_increment_area dw ?
-is_in_decrement_area dw ?
-is_in_play_area dw ?
+    is_in_increment_area        dw ?
+    is_in_decrement_area        dw ?
+    is_in_play_area             dw ?
 
-x_level db 0
-y_level db 0
+    x_level                     db 0
+    y_level                     db 0
 
 .code
 
-PrintOption proc far
+OptionDriver proc far
+    call ClearScreen
+    call ShowMouse
+
+    xor dx, dx
+    call SetMousePosition
+
+    mov dx, offset option_text
+    call PrintMessage
+
+    call PrintOption
+    call MainOptionLoop
+    ret
+OptionDriver endp
+
+MainOptionLoop proc near
+do_loop:
+    call PrintBackButton
+    call OptionClickEvent
+    cmp [is_in_increment_area], 1
+    je increment
+    cmp [is_in_decrement_area], 1
+    je decrement
+    cmp [is_in_play_area], 1
+    je play_game
+
+    call OnActionBackButton
+    cmp [is_in_back_area], 1
+    cmp [mouseStatus], 1
+    je return_to_main_menu
+
+    jne do_loop
+    ; call LoadMouseText
+    ; call MouseCoordinatesLoop
+    ; jmp do_loop
+
+return_to_main_menu:
+    call HideMouse
+    call MenuDriver
+    ret
+
+play_game:
+    call GotoPlay
+    ret
+
+increment:
+    call HideMouse
+    call GotoIncrement
+    ret
+
+decrement:
+    call HideMouse
+    call GotoDecrement
+    ret
+MainOptionLoop endp
+
+GotoPlay proc near
+    call HideMouse
+    call ClearScreen
+    call BoardDriver
+    ret
+GotoPlay endp
+
+GotoIncrement proc near
+    call HideMouse
+    ret
+GotoIncrement endp
+
+GotoDecrement proc near
+    call HideMouse
+    ret
+GotoDecrement endp
+
+PrintOption proc near
 
     ;print message to input name
     mov axisXOffset, 12
@@ -308,13 +391,13 @@ MouseCoordinatesLoop endp
 
 OptionClickEvent proc near
     ; debug purposes
-    push dx
-    mov dh, 2
-    mov dl, 0
-    call SetMousePosition
-    pop dx
+    ; push dx
+    ; mov dh, 2
+    ; mov dl, 0
+    ; call SetMousePosition
+    ; pop dx
 
-    ;if (mouseX > x1 && mouseX < x2 && mouseY > y1 && mouseY < y
+    ;if (mouseX > x1 && mouseX < x2 && mouseY > y1 && mouseY < y)
     cmp cx, [increment_text_x1]
     jl not_in_increment_area
     cmp cx, [increment_text_x2]
@@ -325,13 +408,10 @@ OptionClickEvent proc near
     cmp dx, [increment_text_y2]
     jg not_in_increment_area
 
-
     mov [is_mouse_in], 1
     jmp if_is_in_increment_area
 
-
 not_in_increment_area:
-
     cmp cx, [decrement_text_x1]
     jl not_in_decrement_area
     cmp cx, [decrement_text_x2]
@@ -385,6 +465,7 @@ if_is_in_decrement_area:
     jne to_print_value
 
     jmp click_on_decrement
+
 if_is_in_increment_area:
     cmp [mouseStatus], 1
     jne to_print_value
@@ -402,6 +483,7 @@ to_print_value:
 click_on_play:
     mov [is_in_play_area], 1
     jmp return
+
 click_on_increment:
     xor di,di
     xor si,si
@@ -432,53 +514,6 @@ return:
     ret
 OptionClickEvent endp
 
-
-MainOptionLoop proc near
-do_loop:
-    call OptionClickEvent
-    cmp [is_in_increment_area], 1
-    je increment
-    cmp [is_in_decrement_area], 1
-    je decrement
-    cmp [is_in_play_area], 1
-    je play_game
-
-    call LoadMouseText
-    call MouseCoordinatesLoop
-    jmp do_loop
-
-
-play_game:
-    call GotoPlay
-    ret
-increment:
-    call HideMouse
-    call GotoIncrement
-    ret
-decrement:
-    call HideMouse
-    call GotoDecrement
-    ret
-MainOptionLoop endp
-
-
-GotoPlay proc near
-    call HideMouse
-    call ClearScreen
-    call BoardDriver
-    ret
-GotoPlay endp
-GotoIncrement proc near
-    call HideMouse
-    ret
-GotoIncrement endp
-
-GotoDecrement proc near
-    call HideMouse
-    ret
-GotoDecrement endp
-
-
 print_level_update proc near
     xor cx,cx
     mov cl, levelCount
@@ -505,20 +540,4 @@ print_level_update proc near
 ret
 print_level_update endp
 
-OptionDriver proc far
-
-    call ClearScreen
-
-    mov dh, 0
-    mov dl, 0
-    call SetMousePosition
-
-    mov dx, offset option_text
-    call PrintMessage
-
-    call PrintOption
-    call ShowMouse
-    call MainOptionLoop
-    ret
-OptionDriver endp
 end

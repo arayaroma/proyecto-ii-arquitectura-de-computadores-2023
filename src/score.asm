@@ -6,41 +6,75 @@
 public ScoreboardDriver
 public ConvertScoreTxt
 public driverValidate
+
+; about.asm
+extrn OnActionBackButton:far
+
 ;board 
 extrn scorePlayer:word , player_score_value:byte
+
+; menu.asm
+extrn MenuDriver:far
+
 ; mouse.asm
 extrn SetMousePosition:far
 extrn ShowMouse:far
+extrn GetKeyPressed:far
+extrn HideMouse:far
+extrn mouseStatus:byte
 
 ; graphics.asm
 extrn ClearScreen:far
 extrn PrintMessage:far
 extrn nombre:byte
-.data
-    score			db "../src/score/score",0
-    scoreboard_text db 'Scoreboard', '$'
-    handle dw 0          ; Handle del archivo
-    ScoreTable db "Score Table", "$"
-    first db ""
-	buffer_aux db 128 dup(" "), "$"
-	buffer db 1 dup(" "), "$"
-	nombre2 db 128 dup(" "), "$"
-	nombre1 db 128 dup(" "), "$"
-	nombre3 db 128 dup(" "), "$"
-	;aqui el puntaje
-	puntaje_jugador db 128 dup(" "), "$"
-	puntaje1 db 128 dup(" "), "$"
-	puntaje2 db 128 dup(" "), "$"
-	puntaje3 db 128 dup(" "), "$"
-	puntaje1Int dw  0 
-	puntaje2Int dw  0 
-	puntaje3Int dw  0 
-	
+extrn PrintBackButton:far, OnActionBackButton:far
+extrn is_in_back_area:byte
 
-	auxNumberConvert  db 10 dup(" ")
-	txt db " ", 0
+.data
+    score				db "../src/score/score",0
+    scoreboard_text 	db 'Scoreboard', '$'
+    handle 				dw 0          ; Handle del archivo
+    ScoreTable 			db "Score Table", "$"
+    first 				db ""
+	buffer_aux 			db 128 dup(" "), "$"
+	buffer 				db 1 dup(" "), "$"
+	nombre2 			db 128 dup(" "), "$"
+	nombre1 			db 128 dup(" "), "$"
+	nombre3 			db 128 dup(" "), "$"
+	;aqui el puntaje
+	puntaje_jugador 	db 128 dup(" "), "$"
+	puntaje1 			db 128 dup(" "), "$"
+	puntaje2 			db 128 dup(" "), "$"
+	puntaje3 			db 128 dup(" "), "$"
+	puntaje1Int 		dw  0 
+	puntaje2Int 		dw  0 
+	puntaje3Int 		dw  0 
+	auxNumberConvert  	db 10 dup(" ")
+	txt 				db " ", 0
 .code
 
+ScoreboardDriver proc far
+    call ClearScreen
+    call ShowMouse
+    call openReadScore
+	call read_file
+	call close_file
+
+    call PrintScore
+do_loop:
+	call PrintBackButton
+	call OnActionBackButton
+	cmp [is_in_back_area], 1
+	cmp [mouseStatus], 1
+	je return_to_main_menu
+	jne do_loop
+
+return_to_main_menu:
+	call HideMouse
+	call MenuDriver
+
+    ret
+ScoreboardDriver endp
 
 clear_AuxNumber proc near
 	push ax
@@ -195,66 +229,57 @@ inc_buffer endp
 
 calcular_logitud proc near
 calcular:
-        cmp byte ptr [di], '$'
-        je fin_calcular_longitud
-        inc di
-        inc cx
-        jmp calcular
-    fin_calcular_longitud:
-ret
+    cmp byte ptr [di], '$'
+    je fin_calcular_longitud
+    inc di
+    inc cx
+    jmp calcular
+fin_calcular_longitud:
+	ret
 calcular_logitud endp
 
-close_file proc near
 ; Cerrar el archivo
-		MOV AH, 3EH
-		MOV BX, handle
-		INT 21H
-ret
+close_file proc near
+	MOV AH, 3EH
+	MOV BX, handle
+	INT 21H
+	ret
 close_file endp
 
 PrintScore proc near
-
-
     mov dh, 6
     mov dl, 35 
     call SetMousePosition
-
     mov dx, offset ScoreTable 
     call PrintMessage
 
     mov dh, 9
     mov dl, 30 
     call SetMousePosition
-
     mov dx, offset nombre3 
     call PrintMessage
 
     mov dh, 9
     mov dl, 46 
     call SetMousePosition
-
     mov dx, offset puntaje3 
     call PrintMessage
-
 
     mov dh, 11
     mov dl, 30 
     call SetMousePosition
-
     mov dx, offset nombre2
     call PrintMessage
 
     mov dh, 11
     mov dl, 46 
     call SetMousePosition
-
     mov dx, offset puntaje2
-     call PrintMessage
+    call PrintMessage
 
     mov dh, 13
     mov dl, 30 
     call SetMousePosition
-
     mov dx, offset nombre1
     call PrintMessage
 
@@ -265,24 +290,6 @@ PrintScore proc near
     call PrintMessage
     ret
 PrintScore endp
-
-ScoreboardDriver proc far
-    call ClearScreen
-    call openReadScore
-	call read_file
-	call close_file
-    call PrintScore
-
-    mov dh, 0
-    mov dl, 0
-    call SetMousePosition
-
-    mov dx, offset scoreboard_text 
-    call PrintMessage
-
-    call ShowMouse
-    ret
-ScoreboardDriver endp
 
 clear_file proc near
 		; Abrir el archivo con la opción de escritura (truncate)
@@ -350,7 +357,6 @@ write_file proc near
     lea dx, [di]
     int 21h
 	
-	
 	call espacio_blanco
 	
 	xor di,di
@@ -366,7 +372,6 @@ write_file proc near
 	
 	call espacio_blanco
 	
-	
 	xor di,di
 	lea di, puntaje2
 	xor cx,cx
@@ -379,7 +384,6 @@ write_file proc near
     int 21h
 	
 	call espacio_blanco
-	
 	
 	xor di,di
 	lea di, nombre3
@@ -443,31 +447,38 @@ validaciones endp
 
 driverValidate proc far
 	call openReadScore
-	    mov ah, 0
-    int 16h
-	call read_file
-		    mov ah, 0
-    int 16h
-	call close_file
-		    mov ah, 0
-    int 16h
-	call validaciones	
-		    mov ah, 0
-    int 16h
-	call clear_file
-		    mov ah, 0
-    int 16h
-	call close_file
-		    mov ah, 0
-    int 16h
-	call write_file
-		    mov ah, 0
-    int 16h
-	call close_file
-		    mov ah, 0
+	mov ah, 0
     int 16h
 
-ret
+	call read_file
+	mov ah, 0
+    int 16h
+
+	call close_file
+	mov ah, 0
+    int 16h
+
+	call validaciones	
+	mov ah, 0
+    int 16h
+
+	call clear_file
+	mov ah, 0
+    int 16h
+
+	call close_file
+	mov ah, 0
+    int 16h
+
+	call write_file
+	mov ah, 0
+    int 16h
+
+	call close_file
+	mov ah, 0
+    int 16h
+
+	ret
 driverValidate endp
 
 evaluate3_position proc near
@@ -578,14 +589,12 @@ evaluate1_position proc near
 ret
 evaluate1_position endp
 
-
 changeName proc near
     push ax
     push bx
     push cx
     push si
     push di
-
     mov ax, ds
     mov es, ax
 
@@ -593,14 +602,12 @@ changeName proc near
     inc cx
 
     rep movsb ; Mover los datos de ds:si a es:di
-
     pop di
     pop si
     pop cx
     pop bx
     pop ax
     ret
-
 changeName endp
 
 end

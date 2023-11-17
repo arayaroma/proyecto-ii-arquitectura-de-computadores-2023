@@ -662,20 +662,19 @@ errorcode:
 PlayMusic endp
 
 game_over proc near
-
     call ClearScreen
-    call driverValidate
-    
-    mov ah, 0
-    int 16h
-    mov dh, 10
-    mov dl, 10
-    call SetMousePosition
+    ; call driverValidate
     call clear_register
-    lea dx, game_over_txt
-    call PrintMessage
-    mov ah, 0
-    int 16h
+    
+    ; mov ah, 0
+    ; int 16h
+    ; mov dh, 10
+    ; mov dl, 10
+    ; call SetMousePosition
+    ; lea dx, 0
+    ; call PrintMessage
+    ; mov ah, 0
+    ; int 16h
 ret
 game_over endp
 

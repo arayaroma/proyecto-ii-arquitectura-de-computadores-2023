@@ -10,17 +10,18 @@ extrn MenuDriver:far
 
 ; mouse.asm
 extrn SetMousePosition:far
-extrn ShowMouse:far
-extrn HideMouse:far
-extrn SetMousePosition:far
-extrn GetMousePosition:far
-extrn is_mouse_in:word
-extrn mouseStatus:word
+extrn ShowMouse:far, HideMouse:far
+extrn SetMousePosition:far, GetMousePosition:far
+extrn is_mouse_in:word, mouseStatus:word
+extrn back_x1:word, back_y1:word
+extrn back_x2:word, back_y2:word
 
 ; graphics.asm
 extrn ClearScreen:far
 extrn PrintMessage:far
 extrn PrintBackButton:far
+extrn OnActionBackButton:far
+extrn is_in_back_area:byte
 
 .data
     endless_runners_text    db 'Endless Runners', '$'
@@ -33,13 +34,6 @@ extrn PrintBackButton:far
     axis_x_offset           db ?
     axis_y_offset           db ?
 
-    back_x1                 dw 0
-    back_y1                 dw 0
-    back_x2                 dw 40
-    back_y2                 dw 15
-    is_in_back_area         db 0
-
-
 .code
 
 ; AboutDriver
@@ -50,46 +44,18 @@ AboutDriver proc far
     call ShowMouse
     call PrintInformation
     call PrintBackButton
+
 action_loop:
     call OnActionBackButton
     cmp [is_in_back_area], 1
-    je back_area
-    jne action_loop
-
-back_area:
     cmp [mouseStatus], 1
-    je go_back
     jne action_loop
+    je go_back
 
 go_back:
     call GoBackMenu
     ret
 AboutDriver endp
-
-; OnActionBackButton
-; Checks if the mouse is in the back button
-;
-OnActionBackButton proc near
-    call GetMousePosition
-    cmp cx, [back_x1]
-    jl not_in_back_button
-    cmp cx, [back_x2]
-    jg not_in_back_button
-    cmp dx, [back_y1]
-    jl not_in_back_button
-    cmp dx, [back_y2]
-    jg not_in_back_button
-
-    mov [is_in_back_area], 1
-    jmp end_action_back_button
-
-not_in_back_button:
-    mov [is_in_back_area], 0
-    jmp end_action_back_button
-
-end_action_back_button:
-    ret
-OnActionBackButton endp
 
 ; GoBackMenu
 ; Returns to the main menu
