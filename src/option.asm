@@ -9,38 +9,26 @@ public OptionDriver, nombre, levelCount, levelTxt
 ; board.asm
 extrn BoardDriver:far
 
-; about.asm
-extrn OnActionBackButton:far
-
 ; menu.asm
 extrn MenuDriver:far
 
 ; ascii.asm
-extrn ConvertToASCII:far
-extrn DisplayASCII:far
+extrn ConvertToASCII:far, DisplayASCII:far
 
 ; graphics.asm
-extrn ClearScreen:far
-extrn ShowMouse:far
-extrn PrintMessage:far
-extrn PrintBackButton:far
+extrn OnActionBackButton:far
+extrn ClearScreen:far, ShowMouse:far
+extrn PrintMessage:far, PrintBackButton:far
 extrn is_in_back_area:byte
-extrn back_x1:word
-extrn back_y1:word
-extrn back_x2:word
-extrn back_y2:word
+extrn back_x1:word, back_y1:word
+extrn back_x2:word, back_y2:word
 
 ; mouse.asm
-extrn GetMousePosition:far
-extrn SetMousePosition:far
-extrn ShowMouse:far
-extrn HideMouse:far
-extrn mouseXText:byte
-extrn mouseYText:byte
-extrn mouseX:word
-extrn mouseY:word
-extrn is_mouse_in:word
-extrn mouseStatus:word
+extrn GetMousePosition:far, SetMousePosition:far
+extrn ShowMouse:far, HideMouse:far
+extrn mouseXText:byte, mouseYText:byte
+extrn mouseX:word, mouseY:word
+extrn is_mouse_in:word, mouseStatus:word
 
 
 .data
@@ -98,25 +86,30 @@ OptionDriver proc far
 OptionDriver endp
 
 MainOptionLoop proc near
-do_loop:
     call PrintBackButton
-    call OptionClickEvent
-    cmp [is_in_increment_area], 1
-    je increment
-    cmp [is_in_decrement_area], 1
-    je decrement
-    cmp [is_in_play_area], 1
-    je play_game
-
+do_loop:
+    call GetMousePosition
     call OnActionBackButton
     cmp [is_in_back_area], 1
+    je in_back
+    jne continue
+
+in_back:
     cmp [mouseStatus], 1
     je return_to_main_menu
 
+continue:
+    call GetMousePosition
+    call OptionClickEvent
+    cmp [is_in_increment_area], 1
+    je increment
+
+    cmp [is_in_decrement_area], 1
+    je decrement
+
+    cmp [is_in_play_area], 1
+    je play_game
     jne do_loop
-    ; call LoadMouseText
-    ; call MouseCoordinatesLoop
-    ; jmp do_loop
 
 return_to_main_menu:
     call HideMouse
@@ -182,7 +175,6 @@ PrintOption proc near
             cmp al, 0
             je loop_name
 
-
             mov ah, 0
             int 16h
 
@@ -202,7 +194,6 @@ PrintOption proc near
             ; mov dl, [axisYOffset]
             ; call SetMousePosition
 
-
             ; Imprime el nombre
             mov ah,2
             mov dl,al
@@ -212,7 +203,6 @@ PrintOption proc near
             inc di
             ; Comprueba si se presionó la tecla Enter (código ASCII 13)
             
-
         jmp loop_name
 
     delete_character:
@@ -223,7 +213,6 @@ PrintOption proc near
             mov ah,2
             mov dl,' '
             int 21h
-
 
             mov ah,2
             mov dl,8
@@ -269,7 +258,6 @@ PrintOption proc near
         mov dl, [axisYOffset]
         call SetMousePosition
 
-
         mov dx, offset level_message
         call PrintMessage
 
@@ -291,7 +279,6 @@ PrintOption proc near
         mov dx, offset levelTxt
         call PrintMessage
 
-
         add axisYOffset, 6
         mov dh, [axisXOffset]
         mov dl, [axisYOffset]
@@ -311,7 +298,6 @@ PrintOption proc near
         mov dx, offset levelNumberAux
         call PrintMessage
 
-
         add axisYOffset, 3
         mov dh, [axisXOffset]
         mov dl, [axisYOffset]
@@ -329,7 +315,6 @@ PrintOption proc near
 
         mov dx, offset play
         call PrintMessage
-
 ret
 PrintOption endp
 
@@ -341,8 +326,6 @@ clear_xy_position proc
     call SetMousePosition
     ret
 clear_xy_position endp
-
-
 
 ; LoadMouseText
 ;
@@ -485,6 +468,7 @@ click_on_play:
     jmp return
 
 click_on_increment:
+    call HideMouse
     xor di,di
     xor si,si
     lea di, levelNumberAux
@@ -493,7 +477,8 @@ click_on_increment:
     ja end_click_on_increment
     inc levelCount
     call print_level_update
-    end_click_on_increment:
+end_click_on_increment:
+    call ShowMouse
     jmp return
 
 click_on_decrement:
@@ -506,7 +491,7 @@ click_on_decrement:
     jb end_click_on_decrement
     dec levelCount
     call print_level_update
-    end_click_on_decrement:
+end_click_on_decrement:
     call ShowMouse
     jmp return
 

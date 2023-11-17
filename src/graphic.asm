@@ -7,6 +7,7 @@ public printRectangle, PrintBackButton
 public SetVideoMode, ClearScreen, PrintMessage
 public back_x1, back_y1, back_x2, back_y2
 public OnActionBackButton
+public is_in_back_area
 
 ; about.asm
 extrn GoBackMenu:far
@@ -68,7 +69,7 @@ PrintMessage endp
 ; OnActionBackButton
 ; Checks if the mouse is in the back button
 ;
-OnActionBackButton proc near
+OnActionBackButton proc far
     call GetMousePosition
     cmp cx, [back_x1]
     jl not_in_back_button
