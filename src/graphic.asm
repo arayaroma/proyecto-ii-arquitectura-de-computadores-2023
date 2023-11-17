@@ -56,7 +56,7 @@ ClearScreen proc far
 ClearScreen endp
 
 ;   PrintMessage
-;
+;2
 ;   Prints a message to the screen
 ;   Input: DS:DX -> message
 ;   Output: none
