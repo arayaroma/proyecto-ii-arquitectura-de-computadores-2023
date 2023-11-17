@@ -298,16 +298,7 @@ clear_file proc near
 		lea dx, score
 		mov cx, 0 ; Modo de apertura, 0 significa crear o abrir para escritura
 		int 21h
-		xor ax,ax
-		xor si,si
-		mov handle, ax ; Almacenar el handle del archivo en handle
-		lea si, txt
-		; Escribir en el archivo
-		mov ah, 40h
-		mov bx, handle
-		mov cx, 30 ; Número de bytes a escribir
-		lea dx, [si]
-		int 21h
+
 ret
 clear_file endp
 
@@ -447,37 +438,17 @@ validaciones endp
 
 driverValidate proc far
 	call openReadScore
-	mov ah, 0
-    int 16h
-
+	
 	call read_file
-	mov ah, 0
-    int 16h
-
 	call close_file
-	mov ah, 0
-    int 16h
-
+		
 	call validaciones	
-	mov ah, 0
-    int 16h
 
 	call clear_file
-	mov ah, 0
-    int 16h
-
 	call close_file
-	mov ah, 0
-    int 16h
 
 	call write_file
-	mov ah, 0
-    int 16h
-
 	call close_file
-	mov ah, 0
-    int 16h
-
 	ret
 driverValidate endp
 

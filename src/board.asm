@@ -14,7 +14,7 @@ extrn OpenFile:far, getNextLine:far, CloseFile:far
 extrn driverValidate:far
 ; move.asm
 extrn move:far           
-
+extrn printPause:far
 ; option.asm
 extrn nombre:byte
 extrn levelCount:byte, levelTxt:byte
@@ -72,7 +72,7 @@ extrn ConvertScoreTxt:far
     gameDelay           db 40
     nextSeco            db 0
     minute              db 0
-    isChange            db 0 
+    isChange            db 0
     scorePlayer         dw 0
     levelTxtNumber      db 2 dup(' ') , '$'
     delayTxt            db 2 dup(' ') , '$'
@@ -362,8 +362,8 @@ isMoveNave proc
     je moveUp
     cmp al, 115 ; s
     je moveDown
-    ;cmp al, 112 ;p ascii code 112
-
+    cmp al, 112 ;p ascii code 112
+    je pause
     jmp endNoMove
     moveUp:
         cmp posNave, 1
@@ -403,14 +403,28 @@ isMoveNave proc
         mov [si], al
         mov al, 'n'
         mov [si+1], al
-
+        jmp endMove
+    pause:
+        call pauseGame
     endMove:
     call ColitionCmp
     call board 
     endNoMove:  
 ret
 isMoveNave endp
+pauseGame proc near
+    call ClearScreen
+    call printPause
+    loopPause:
+    mov ah, 0
+    int 16h
+    cmp al, 112
+    jne loopPause
+    call PrintHeaders
+    call board
 
+ret
+pauseGame endp
 lostLiveProc proc near
 
     dec player_lives_cant
@@ -663,7 +677,13 @@ PlayMusic endp
 
 game_over proc near
     call ClearScreen
-    ; call driverValidate
+    call driverValidate
+
+    mov ah, 0
+    int 16h
+    mov dh, 10
+    mov dl, 10
+    call SetMousePosition
     call clear_register
     
     ; mov ah, 0
@@ -685,7 +705,7 @@ clear_register proc
     xor dx, dx
     xor di, di
     xor si, si
-
 ret
 clear_register endp
+
 end
