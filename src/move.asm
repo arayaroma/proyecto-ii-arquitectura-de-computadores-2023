@@ -63,9 +63,6 @@ fin2:
     ret
 move endp
 
-;----------------------------------------------
-; set bx limit
-; return random number in dx
 
 
 end

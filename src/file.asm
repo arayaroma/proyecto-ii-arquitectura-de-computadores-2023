@@ -97,9 +97,9 @@ getNextLine proc far
 	call OpenFile
 	jmp init
 	return:
-	mov bx,20
+	mov bx,7
 	call randomNumber
-	cmp dx,15
+	cmp dx,5
 	jne endGetNextLine
 	call setwildcards
 
@@ -122,7 +122,7 @@ setwildcards proc
 	jmp loopFree
 	fildFree:
 	inc di
-	
+
 	mov bx, 3 
 	call randomNumber
 
@@ -204,7 +204,9 @@ ClearVariables endp
 ; 	add [randomNumber], al
 ; 	ret
 ; generateBasicRandomNumber endp
-
+;----------------------------------------------
+; set bx limit
+; return random number in dx
 randomNumber proc near
     mov ah, 00h
     int 1ah
