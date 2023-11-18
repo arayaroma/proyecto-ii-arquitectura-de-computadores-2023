@@ -460,11 +460,11 @@ lostLiveProc proc near
     call ClearScreen
     call PrintHeaders
     call board
+   
     cmp player_lives_cant, 0
     je endGame
     jmp endLostLive
-    ; lea dx, [bonusPath]
-    ; call PlayMusic
+
     endGame:
     call CloseFile
     call game_over
@@ -496,19 +496,29 @@ ColitionCmp proc
             cmp al,'*'
             je lostLive
             cmp al,'a'
-            je getPoint
+            je getLive
+            cmp al,'r'
+            je upLevelCmp
+            cmp al,'v'
+            je decLevel
+
             mov [di],bl
             jmp freeColision
             lostLive:
                 mov [di],bh
                 call lostLiveProc
                 jmp freeColision
-
-                ;TODO: restar vidas
-                ;TODO: verificar si se perdio
-                ;TODO: Sonido colision
-            getPoint:
+            getLive:
                 mov [di],bl
+                call up_love
+                jmp freeColision
+            upLevelCmp:
+                mov [di],bl
+                call upLevelProc
+                jmp freeColision
+            decLevel:
+                mov [di],bl
+                call decLevelProc
                 jmp freeColision
             freeColision:
             inc si
@@ -520,7 +530,36 @@ ColitionCmp proc
     ret
 ColitionCmp endp
 
+decLevelProc proc near
+    cmp levelCount, 1
+    je endDecLevel
+    dec levelCount
+    call caluDelay
+    endDecLevel:
+ret
+decLevelProc endp
 
+upLevelProc proc near
+    cmp levelCount, 15
+    je endUpLevel
+    inc levelCount
+    cmp levelCount, 15
+    je endUpLevel
+    inc levelCount
+    
+    endUpLevel:
+    call caluDelay
+ret
+upLevelProc endp
+
+up_love proc near
+    cmp player_lives_cant, 3
+    je endUpLove
+    inc player_lives_cant
+    call PrintHeaders
+    endUpLove:
+ret
+up_love endp
 
 delay proc near
 	mov ah,2ch
@@ -546,10 +585,11 @@ delay proc near
     operaciones:
         call getNextLine
         call move
-
+        push ax bx cx dx si di
         call ColitionCmp
         call board
         call printScore
+        pop di si dx cx bx ax 
         mov second, dh
         mov bh, gameDelay
         mov miliSec, dl
@@ -623,6 +663,7 @@ ret
 cronom20 endp
 
 BoardDriver proc far
+    mov player_lives_cant, 3
     call restSecond
     call PrintHeaders
     call PrintPauseMessage
