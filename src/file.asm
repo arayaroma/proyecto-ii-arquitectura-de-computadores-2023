@@ -1,7 +1,7 @@
 ; file.asm
 ; author: jesus abarca
 ; author: arayaroma
-;
+; author: amadorsalazar
 .8086
 .model small
 public OpenFile, closeFile , getNextLine
@@ -22,15 +22,14 @@ extrn PrintMessage:far
 
 .data
     filename 				db "../src/patterns/arch"
-	; score					db "../src/patterns/score"
-	; score_handle			dw 0
+
     handle 					dw 0
 
 	is_open_error           db ?
     is_read_error           db ?
     open_error_message      db "Error opening file!", '$'
     read_error_message      db "Error reading file!", '$'
-	randomNumber 			db 0
+	;randomNumber 			db 0
 .code
 
 ; OpenFile
@@ -44,7 +43,7 @@ extrn PrintMessage:far
 OpenFile proc far
 
 	call ClearVariables
-	call generateBasicRandomNumber
+	;call generateBasicRandomNumber
 	mov ah, 3Dh
 	mov al, 00h
 	lea dx, filename
@@ -62,41 +61,6 @@ _return:
 	ret
 OpenFile endp
 
-; OpenScoreFile proc far
-; 	call ClearVariables
-; 	mov ah, 3Dh
-; 	mov al, 02h
-; 	lea dx, score
-; 	int 21h
-; 	jc score_open_error
-
-; 	mov score_handle, ax
-; 	jmp final
-
-; score_open_error:
-; 	call OpenError
-; 	jmp final	
-
-; final:
-; 	ret
-; OpenScoreFile endp
-
-; WriteScoreFile proc far
-; 	mov ah, 40h
-; 	mov bx, score_handle
-; 	mov cx, 10
-; 	lea dx, nombre
-; 	int 21h
-; 	jc write_error
-; 	jmp do_end
-
-; write_error:
-; 	call OpenError
-; 	jmp do_end
-
-; do_end:
-; 	ret
-; WriteScoreFile endp
 
 ; CloseFile
 ;
@@ -133,13 +97,59 @@ getNextLine proc far
 	call OpenFile
 	jmp init
 	return:
+	mov bx,20
+	call randomNumber
+	cmp dx,15
+	jne endGetNextLine
+	call setwildcards
+
+
+	endGetNextLine:
 	pop dx
 	pop cx
 	pop bx
 	pop ax
 	ret
 getNextLine endp
+setwildcards proc 
 
+	lea di,movimiento
+	loopFree:
+	mov al,[di]
+	cmp al," "
+	je fildFree
+	inc di
+	jmp loopFree
+	fildFree:
+	inc di
+	
+	mov bx, 3 
+	call randomNumber
+
+	cmp dx, 0
+	je setRed
+	cmp dx, 1
+	je setBlue
+	cmp dx, 2
+	je setGreen
+	jmp endSetWildcards
+	setRed:
+	mov al, "r"
+	mov [di], al
+	jmp endSetWildcards
+	setGreen:
+	mov al, "v"
+	mov [di], al
+	jmp endSetWildcards
+
+	setBlue:
+	mov al, "a"
+	mov [di], al
+	jmp endSetWildcards
+
+	endSetWildcards:
+ret
+setwildcards endp
 ; ReadError
 ;
 ; Show error message when reading file
@@ -176,23 +186,33 @@ ClearVariables proc near
 	ret
 ClearVariables endp
 
-generateBasicRandomNumber proc
-	mov ax, 40h
-	mov es, ax
-	mov ax, [es:6Ch]
-	and al, 00000111b
-	mov [randomNumber], al
-	mov ax, 40h
-	mov es, ax
-	mov ax, [es:6Ch]
-	and al, 00000001b
-	add [randomNumber], al
-	mov ax, 40h
-	mov es, ax
-	mov ax, [es:6Ch]
-	and al, 00000001b
-	add [randomNumber], al
-	ret
-generateBasicRandomNumber endp
+; generateBasicRandomNumber proc
+; 	mov ax, 40h
+; 	mov es, ax
+; 	mov ax, [es:6Ch]
+; 	and al, 00000111b
+; 	mov [randomNumber], al
+; 	mov ax, 40h
+; 	mov es, ax
+; 	mov ax, [es:6Ch]
+; 	and al, 00000001b
+; 	add [randomNumber], al
+; 	mov ax, 40h
+; 	mov es, ax
+; 	mov ax, [es:6Ch]
+; 	and al, 00000001b
+; 	add [randomNumber], al
+; 	ret
+; generateBasicRandomNumber endp
+
+randomNumber proc near
+    mov ah, 00h
+    int 1ah
+    mov ax, dx
+    xor dx, dx
+    div bx
+ret
+randomNumber endp
+
 
 end

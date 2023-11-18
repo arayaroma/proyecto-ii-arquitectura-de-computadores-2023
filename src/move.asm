@@ -66,13 +66,6 @@ move endp
 ;----------------------------------------------
 ; set bx limit
 ; return random number in dx
-randonNumber proc 
-    mov ah, 00h
-    int 1ah
-    mov ax, dx
-    xor dx, dx
-    div bx
-ret
-randonNumber endp
+
 
 end
