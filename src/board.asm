@@ -280,15 +280,38 @@ xor si, si
             cmp ah, '$'
             je printNave
             cmp ah,' '
-            je free 
+            je free
+            cmp ah,'*'
+            je notFree 
+
+            cmp ah,'r'
+            je upLevelC 
+            cmp ah,'a'
+            je upLive 
+            cmp ah,'v'
+            je downLevel 
+
             jne notFree
             free:
-                mov colorPaint, 01
+                mov colorPaint, 56
                 call printRectangle
                 jmp init
             notFree:
-                mov colorPaint, 66
+                mov colorPaint,3
                 call printRectangle
+                jmp init
+            downLevel:
+                mov colorPaint, 2
+                call printRectangle
+                jmp init
+            upLevelC:
+                mov colorPaint, 4
+                call printRectangle
+                jmp init
+            upLive:
+                mov colorPaint, 1
+                call printRectangle
+                jmp init
             init:
                 inc py  ; increment py position to next row
                 inc si
@@ -314,7 +337,7 @@ xor si, si
             je freeNave 
             jne notfreeNave
             freeNave:
-                mov colorPaint, 01
+                mov colorPaint, 56
                 call printRectangle
                 jmp nextPiece
             notfreeNave:
@@ -324,14 +347,17 @@ xor si, si
                 je naveColicion
                 cmp ah,'*'
                 je obstaculo
+                mov colorPaint, 56
+                call printRectangle
+                jmp nextPiece
                 naveNormal:
                 mov colorPaint, 5
                 jmp nextPiece
                 naveColicion:
-                mov colorPaint, 4
+                mov colorPaint, 0
                 jmp nextPiece
                 obstaculo:
-                mov colorPaint, 66
+                mov colorPaint, 3
                 
             nextPiece:
             call printRectangle
@@ -433,7 +459,6 @@ lostLiveProc proc near
     dec player_lives_cant
     call ClearScreen
     call PrintHeaders
-    call PrintPauseMessage
     call board
     cmp player_lives_cant, 0
     je endGame
