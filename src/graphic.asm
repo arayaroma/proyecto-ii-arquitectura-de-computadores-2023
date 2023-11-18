@@ -31,7 +31,7 @@ extrn px:byte, py:byte, colorPaint:byte, printLine:far
     back_y2                 dw 15
     is_in_back_area         db 0
 
-    msgpasue                db  '_____ _____ _____ _____ _____ ',               10,13, "$"
+    msgpasue                db ' _____ _____ _____ _____ _____ ',               10,13, "$"
     msgpasue1               db '|  _  |  _  |  |  |   __|   __|',               10,13, "$"
     msgpasue2               db '|   __|     |  |  |__   |   __|',               10,13, "$"
     msgpasue3               db '|__|  |__|__|_____|_____|_____|',               10,13, "$"
