@@ -21,7 +21,26 @@ extrn SetMousePosition:far
 extrn PrintMessage:far
 
 .data
-    filename 				db "../src/patterns/pat1"
+    pat1 				    db "../src/patterns/pat1"
+	null1 					db 0
+	pat2 				    db "../src/patterns/pat2"
+	null2 					db 0
+	pat3 				    db "../src/patterns/pat3"
+	null3 					db 0
+	pat4 				    db "../src/patterns/pat4"
+	null4 					db 0
+	pat5 				    db "../src/patterns/pat5"
+	null5 					db 0
+	pat6 				    db "../src/patterns/pat6"
+	null6 					db 0
+	pat7 				    db "../src/patterns/pat7"
+	null7 					db 0
+	pat8 				    db "../src/patterns/pat8"
+	null8 					db 0
+	pat9 				    db "../src/patterns/pat9"
+	null9 					db 0
+	pat10 				    db "../src/patterns/pat10"
+
 
     handle 					dw 0
 
@@ -32,6 +51,64 @@ extrn PrintMessage:far
 	;randomNumber 			db 0
 .code
 
+
+loadPattern proc near
+	mov bx, 10
+	call randomNumber
+	cmp dx, 0
+	je Epat1
+	cmp dx, 1
+	je Epat2
+	cmp dx, 2
+	je Epat3
+	cmp dx, 3
+	je Epat4
+	cmp dx, 4
+	je Epat5
+	cmp dx, 5
+	je Epat6
+	cmp dx, 6
+	je Epat7
+	cmp dx, 7
+	je Epat8
+	cmp dx, 8
+	je Epat9
+	cmp dx, 9
+	je Epat10
+
+	Epat1:
+		lea dx, pat1
+	jmp endLoadPattern
+	Epat2:
+		lea dx, pat2
+	jmp endLoadPattern
+	Epat3:
+		lea dx, pat3
+	jmp endLoadPattern
+	Epat4:
+		lea dx, pat4
+	jmp endLoadPattern
+	Epat5:
+		lea dx, pat5
+	jmp endLoadPattern
+	Epat6:
+		lea dx, pat6
+	jmp endLoadPattern
+	Epat7:
+		lea dx, pat7
+	jmp endLoadPattern
+	Epat8:
+		lea dx, pat8
+	jmp endLoadPattern
+	Epat9:
+		lea dx, pat9
+	jmp endLoadPattern
+	Epat10:
+		lea dx, pat10
+
+	endLoadPattern:
+ret
+loadPattern endp
 ; OpenFile
 ; 
 ; AL = 0 (read only), 1 (write only), 2 (read/write)
@@ -43,10 +120,9 @@ extrn PrintMessage:far
 OpenFile proc far
 
 	call ClearVariables
-	;call generateBasicRandomNumber
+	call loadPattern
 	mov ah, 3Dh
 	mov al, 00h
-	lea dx, filename
 	int 21h
 	jc open_error
 
