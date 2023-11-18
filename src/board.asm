@@ -441,6 +441,7 @@ isMoveNave proc
     endNoMove:  
 ret
 isMoveNave endp
+
 pauseGame proc near
     call ClearScreen
     call printPause
@@ -451,7 +452,15 @@ pauseGame proc near
     jne loopPause
     call PrintHeaders
     call board
-
+    mov ah,2ch
+	int 21h
+    mov second, dh
+    inc second
+    cmp second, 60
+    jne endPause
+    mov second, 0
+    endPause:
+    
 ret
 pauseGame endp
 lostLiveProc proc near
