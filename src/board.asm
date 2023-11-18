@@ -27,8 +27,7 @@ extrn nombre:byte, levelCount:byte, levelTxt:byte
 
 ;graphics.asm
 extrn ClearScreen:far, PrintMessage:far, printRectangle:far
-extrn game_over_top:byte, game_over_middle_top:byte, game_over_middle_bot:byte, game_over_bot:byte
-extrn game_over_binary:byte, game_over_binary_two:byte, game_over_octal:byte, game_over_hex:byte
+extrn PrintGameOverMessage:far
 
 ; score
 extrn ConvertScoreTxt:far
@@ -679,57 +678,7 @@ errorcode:
     ret
 PlayMusic endp
 
-PrintGameOverMessage proc near
-    mov dh, 10
-    mov dl, 20
-    call SetMousePosition
-    lea dx, game_over_top
-    call PrintMessage
 
-    mov dh, 11
-    mov dl, 20
-    call SetMousePosition
-    lea dx, game_over_middle_top
-    call PrintMessage
-
-    mov dh, 12
-    mov dl, 20
-    call SetMousePosition
-    lea dx, game_over_middle_bot
-    call PrintMessage
-
-    mov dh, 13
-    mov dl, 20
-    call SetMousePosition
-    lea dx, game_over_bot
-    call PrintMessage
-
-    mov dh, 14
-    mov dl, 20
-    call SetMousePosition
-    lea dx, game_over_binary
-    call PrintMessage
-
-    mov dh, 15
-    mov dl, 20
-    call SetMousePosition
-    lea dx, game_over_binary_two
-    call PrintMessage
-
-    mov dh, 16
-    mov dl, 20
-    call SetMousePosition
-    lea dx, game_over_octal
-    call PrintMessage
-
-    mov dh, 17
-    mov dl, 20
-    call SetMousePosition
-    lea dx, game_over_hex
-    call PrintMessage
-
-    ret
-PrintGameOverMessage endp
 
 game_over proc near
     call ClearScreen

@@ -9,8 +9,8 @@ public back_x1, back_y1, back_x2, back_y2
 public OnActionBackButton
 public is_in_back_area
 public printPause
-public game_over_top, game_over_middle_top, game_over_middle_bot, game_over_bot
-public game_over_binary, game_over_binary_two, game_over_octal, game_over_hex
+public PrintGameOverMessage
+
 
 ; about.asm
 extrn GoBackMenu:far
@@ -167,4 +167,56 @@ printPause proc far
 
     ret
 printPause endp
+
+PrintGameOverMessage proc far
+    mov dh, 10
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_top
+    call PrintMessage
+
+    mov dh, 11
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_middle_top
+    call PrintMessage
+
+    mov dh, 12
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_middle_bot
+    call PrintMessage
+
+    mov dh, 13
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_bot
+    call PrintMessage
+
+    mov dh, 14
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_binary
+    call PrintMessage
+
+    mov dh, 15
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_binary_two
+    call PrintMessage
+
+    mov dh, 16
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_octal
+    call PrintMessage
+
+    mov dh, 17
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_hex
+    call PrintMessage
+
+    ret
+PrintGameOverMessage endp
 end
