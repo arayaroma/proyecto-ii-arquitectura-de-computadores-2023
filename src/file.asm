@@ -21,7 +21,7 @@ extrn SetMousePosition:far
 extrn PrintMessage:far
 
 .data
-    filename 				db "../src/patterns/arch"
+    filename 				db "../src/patterns/pat1"
 
     handle 					dw 0
 
