@@ -8,6 +8,7 @@ bin\tasm /zi src\graphic.asm
 bin\tasm /zi src\menu.asm
 bin\tasm /zi src\mouse.asm
 bin\tasm /zi src\board.asm
+pause
 bin\tasm /zi src\move.asm
 bin\tasm /zi src\file.asm
 bin\tasm /zi src\score.asm

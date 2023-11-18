@@ -1,5 +1,6 @@
 ; board.asm
 ; author: francisco
+; author: arayaroma
 ;
 .8086
 .model small
@@ -10,33 +11,38 @@ public pattern, collision
 public scorePlayer, player_score_value
 
 ; file.asm
-extrn OpenFile:far, getNextLine:far, CloseFile:far
-extrn driverValidate:far
+extrn OpenFile:far, getNextLine:far, CloseFile:far, driverValidate:far
+
 ; move.asm
-extrn move:far           
-extrn printPause:far
-; option.asm
-extrn nombre:byte
-extrn levelCount:byte, levelTxt:byte
+extrn move:far, printPause:far
+
 ; mouse.asm
-extrn ShowMouse:far
-extrn SetMousePosition:far
+extrn ShowMouse:far, SetMousePosition:far, GetKeyPressed:far
+
+; menu.asm
+extrn MenuDriver:far
+
+; option.asm
+extrn nombre:byte, levelCount:byte, levelTxt:byte
 
 ;graphics.asm
-extrn ClearScreen:far
-extrn PrintMessage:far
-extrn printRectangle:far
+extrn ClearScreen:far, PrintMessage:far, printRectangle:far
+extrn game_over_top:byte, game_over_middle_top:byte, game_over_middle_bot:byte, game_over_bot:byte
+extrn game_over_binary:byte, game_over_binary_two:byte, game_over_octal:byte, game_over_hex:byte
+
 ; score
 extrn ConvertScoreTxt:far
 
 .data 
     bonusPath db "../src/audio/bonus.wav"
+    ; Handle del archivo
+    filehandle          dw 0          
 
-    filehandle dw 0          ; Handle del archivo
-    bufferAudio db 0              ; Increase the bufferAudio size to 1 byte
+    ; Increase the bufferAudio size to 1 byte
+    bufferAudio         db 0              
 
-    delayAudio dw 20 
-    hit1Path  db "../src/audio/hit1.wav"
+    delayAudio          dw 20 
+    hit1Path            db "../src/audio/hit1.wav"
 
     endless_runners     db "Endless Runners", '$'
     player_name         db "Player: ", '$'
@@ -76,12 +82,10 @@ extrn ConvertScoreTxt:far
     scorePlayer         dw 0
     levelTxtNumber      db 2 dup(' ') , '$'
     delayTxt            db 2 dup(' ') , '$'
- 
+
 .Code
 
 PrintHeaders proc near
-    
-    
     mov dh, 0
     mov dl, 33
     call SetMousePosition
@@ -675,26 +679,66 @@ errorcode:
     ret
 PlayMusic endp
 
+PrintGameOverMessage proc near
+    mov dh, 10
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_top
+    call PrintMessage
+
+    mov dh, 11
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_middle_top
+    call PrintMessage
+
+    mov dh, 12
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_middle_bot
+    call PrintMessage
+
+    mov dh, 13
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_bot
+    call PrintMessage
+
+    mov dh, 14
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_binary
+    call PrintMessage
+
+    mov dh, 15
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_binary_two
+    call PrintMessage
+
+    mov dh, 16
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_octal
+    call PrintMessage
+
+    mov dh, 17
+    mov dl, 20
+    call SetMousePosition
+    lea dx, game_over_hex
+    call PrintMessage
+
+    ret
+PrintGameOverMessage endp
+
 game_over proc near
     call ClearScreen
     call driverValidate
-
-    mov ah, 0
-    int 16h
-    mov dh, 10
-    mov dl, 10
-    call SetMousePosition
     call clear_register
-    
-    ; mov ah, 0
-    ; int 16h
-    ; mov dh, 10
-    ; mov dl, 10
-    ; call SetMousePosition
-    ; lea dx, 0
-    ; call PrintMessage
-    ; mov ah, 0
-    ; int 16h
+
+    call PrintGameOverMessage
+    call GetKeyPressed
+    call MenuDriver
 ret
 game_over endp
 
