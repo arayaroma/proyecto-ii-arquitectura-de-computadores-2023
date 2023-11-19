@@ -14,8 +14,8 @@ public scorePlayer, player_score_value
 extrn OpenFile:far, getNextLine:far, CloseFile:far, driverValidate:far
 
 ; move.asm
-extrn move:far, printPause:far
-extrn playHit:far, playBonus:far
+extrn move:far, playHit:far, playBonus:far
+
 ; mouse.asm
 extrn ShowMouse:far, SetMousePosition:far, GetKeyPressed:far
 
@@ -27,7 +27,7 @@ extrn nombre:byte, levelCount:byte, levelTxt:byte
 
 ;graphics.asm
 extrn ClearScreen:far, PrintMessage:far, printRectangle:far
-extrn PrintGameOverMessage:far
+extrn PrintGameOverMessage:far, printPause:far
 
 ; score
 extrn ConvertScoreTxt:far
@@ -36,6 +36,7 @@ extrn ConvertScoreTxt:far
     endless_runners     db "Endless Runners", '$'
     player_name         db "Player: ", '$'
     game_over_txt       db "Game Over", '$' 
+    pause_message       db "Press P to pause the game", '$'
     player_name_x       db 1
     player_name_y       db 14
     player_score        db "Score: ", '$'
@@ -47,8 +48,7 @@ extrn ConvertScoreTxt:far
     player_lives_value  db 3, '$'
     player_lives_x      db 1
     player_lives_y      db 62
-    pause_message       db "Press P to pause the game", '$'
-    pause_message_x     db 28
+    pause_message_x     db 0
     pause_message_y     db 4
     pattern             db 250 dup(' ')	,'$'
     nave                db "     n    ", '$'
@@ -120,15 +120,14 @@ PrintHeaders proc near
     mov dh, [player_lives_x]
     mov dl, [player_lives_y+2]
     xor cx, cx
-    MOV Cl, player_lives_cant
+    mov cl, player_lives_cant
     cmp cx, 0
     je endHeader
-    printLives:
-        lea dx, player_lives_value
-        call PrintMessage
-
+printLives:
+    lea dx, player_lives_value
+    call PrintMessage
     loop printLives
-    endHeader:
+endHeader:
     call printLvl
     ret
 PrintHeaders endp
@@ -309,10 +308,7 @@ xor si, si
     ret
 board ENDP
 
-
-
 isMoveNave proc 
- 
     xor ax, ax
     MOV ah,0bh
     int 21h
@@ -385,10 +381,9 @@ ret
 isMoveNave endp
 
 pauseGame proc near
-  
     call ClearScreen
     call printPause
-    loopPause:
+loopPause:
     mov ah, 0
     int 16h
     cmp al, 112
@@ -402,10 +397,11 @@ pauseGame proc near
     cmp second, 60
     jne endPause
     mov second, 0
-    endPause:
-    
-ret
+endPause:
+    call PrintPauseMessage
+    ret
 pauseGame endp
+
 lostLiveProc proc near
     call playHit
     dec player_lives_cant
@@ -417,16 +413,15 @@ lostLiveProc proc near
     je endGame
     jmp endLostLive
 
-    endGame:
+endGame:
     call CloseFile
     call game_over
     
-    endLostLive:
+endLostLive:
     ret
 lostLiveProc endp
 
 ColitionCmp proc
-
     lea si, collision
     lea di, nave
     mov bl,'n'
@@ -477,8 +472,6 @@ ColitionCmp proc
             inc di
             jmp loopColition
         endColition:
-        
-
     ret
 ColitionCmp endp
 
@@ -488,8 +481,8 @@ decLevelProc proc near
     call playBonus
     dec levelCount
     call caluDelay
-    endDecLevel:
-ret
+endDecLevel:
+    ret
 decLevelProc endp
 
 upLevelProc proc near
@@ -501,9 +494,9 @@ upLevelProc proc near
     je endUpLevel
     inc levelCount
     
-    endUpLevel:
+endUpLevel:
     call caluDelay
-ret
+    ret
 upLevelProc endp
 
 up_love proc near
@@ -512,8 +505,8 @@ up_love proc near
     call playBonus
     inc player_lives_cant
     call PrintHeaders
-    endUpLove:
-ret
+endUpLove:
+    ret
 up_love endp
 
 delay proc near
@@ -559,11 +552,8 @@ delay proc near
     jne endDelay
     mov second, 0
     endDelay:
-    
     ret
 delay endp
-
-
 
 restSecond proc 
 	mov ah,2ch
@@ -575,15 +565,12 @@ restSecond proc
 	jnb ajuste
 	mov isChange,0
 	jmp endreset
-	ajuste:
-		sub nextSeco,60
-		mov isChange, 1 
-	endreset:
-	
+ajuste:
+	sub nextSeco,60
+	mov isChange, 1 
+endreset:
 	ret
-
 restSecond endp
-
 
 cronom20 proc 
 	mov ah,2ch
@@ -610,18 +597,16 @@ cronom20 proc
         je endUpLvl
         inc levelCount
         call caluDelay
-        
-        endUpLvl:
+    endUpLvl:
 	endcom:
-
 ret
 cronom20 endp
 
 BoardDriver proc far
     mov player_lives_cant, 3
     call restSecond
-    call PrintHeaders
     call PrintPauseMessage
+    call PrintHeaders
     call OpenFile   
     call ShowMouse
     call clearPatter
@@ -629,19 +614,13 @@ BoardDriver proc far
     call caluDelay
     call printScore
 
-    playing:
+playing:
     call cronom20
     call isMoveNave
     call delay    
     jmp playing
-
-
     ret
 BoardDriver endp
-
-
-
-
 
 game_over proc near
     call ClearScreen
@@ -661,7 +640,7 @@ clear_register proc
     xor dx, dx
     xor di, di
     xor si, si
-ret
+    ret
 clear_register endp
 
 end

@@ -243,6 +243,7 @@ printRectangle proc far
 printRectangle endp
 
 printPause proc far
+    call ClearScreen
     mov dl,23
     mov dh,10
     call SetMousePosition
