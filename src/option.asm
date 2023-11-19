@@ -118,6 +118,7 @@ do_loop:
     jne continue
 
 in_back:
+    
     cmp [mouseStatus], 1
     je return_to_main_menu
 
@@ -553,7 +554,7 @@ print_level_update proc near
     call SetMousePosition
     mov dx, offset levelNumberAux
     call PrintMessage
-    mov cx,4
+    mov cx,6
     delayClick:
         push cx
         mov cx,60000

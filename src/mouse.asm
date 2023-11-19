@@ -7,7 +7,7 @@ public ShowMouse, HideMouse, SetMousePosition, GetMousePosition
 public mouseX, mouseY, mouseXText, mouseYText
 public is_mouse_in, mouseStatus
 public GetKeyPressed
-
+public delayClickMause
 
 ; graphics.asm
 extrn PrintMessage:far
@@ -90,6 +90,19 @@ GetMousePosition proc far
     ret
 GetMousePosition endp
 
+delayClickMause proc far
+
+  mov cx,6
+    delayClick:
+        push cx
+        mov cx,60000
+        delayClick2:
+        loop delayClick2
+        pop cx
+    loop delayClick
+
+    ret 
+delayClickMause endp
 ; SetMousePosition
 ;
 ; int 10H

@@ -22,7 +22,7 @@ extrn ShowMouse:far
 extrn GetKeyPressed:far
 extrn HideMouse:far
 extrn mouseStatus:byte
-
+extrn delayClickMause:far
 ; graphics.asm
 extrn ClearScreen:far
 extrn PrintMessage:far
@@ -54,14 +54,64 @@ extrn is_in_back_area:byte
 	txt 				db " ", 0
 .code
 
+clearScoreName proc near
+
+	mov puntaje1Int, 0
+	mov puntaje2Int, 0
+	mov puntaje3Int, 0
+
+	lea si,auxNumberConvert
+	mov cx, 10
+	clear_loopN:
+	mov al, " "
+	mov [si], al
+	inc si
+	loop clear_loopN
+
+	lea si, nombre1
+	lea di,puntaje1
+	mov cx, 128
+	clear_loop1:
+	mov al, " "
+	mov [si], al
+	mov [di], al
+	inc di
+	inc si
+	loop clear_loop1
+	lea si,nombre2
+	lea di,puntaje2
+	mov cx, 128
+	clear_loop2:
+	mov al, " "
+	mov [si], al
+	mov [di], al
+	inc di
+	inc si
+	loop clear_loop2
+	lea si,nombre3
+	lea di,puntaje3
+	mov cx, 128
+	clear_loop3:
+	mov al, " "
+	mov [si], al
+	mov [di], al
+	inc di
+	inc si
+	loop clear_loop3
+
+
+ret
+clearScoreName endp
+
 ScoreboardDriver proc far
+	call delayClickMause
     call ClearScreen
-    call ShowMouse
     call openReadScore
 	call read_file
 	call close_file
 
     call PrintScore
+    call ShowMouse
 do_loop:
 	call PrintBackButton
 	call OnActionBackButton
@@ -72,6 +122,7 @@ do_loop:
 
 return_to_main_menu:
 	call HideMouse
+	call delayClickMause
 	call MenuDriver
 
     ret
@@ -137,6 +188,7 @@ ret
 openReadScore endp
 
 read_file proc near
+	call clearScoreName
 	lea si, nombre1
 	optener_nombre1:
 		call inc_buffer;

@@ -330,9 +330,10 @@ GotoAbout endp
 ;
 MenuDriver proc far
     call SetVideoMode
-    call ShowMouse
+
     call ClearScreen
     call PrintMenu
+    call ShowMouse
     call MainMenuLoop
     ret
 MenuDriver endp

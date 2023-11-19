@@ -22,7 +22,7 @@ extrn PrintMessage:far
 extrn PrintBackButton:far
 extrn OnActionBackButton:far
 extrn is_in_back_area:byte
-
+extrn delayClickMause:far
 .data
     endless_runners_text    db 'Endless Runners', '$'
     developed_by_text       db 'Developed by', '$'
@@ -40,6 +40,7 @@ extrn is_in_back_area:byte
 ; Driver for the about menu
 ;
 AboutDriver proc far
+    call delayClickMause
     call ClearScreen
     call ShowMouse
     call PrintInformation
@@ -53,6 +54,7 @@ action_loop:
     je go_back
 
 go_back:
+    call delayClickMause
     call GoBackMenu
     ret
 AboutDriver endp
