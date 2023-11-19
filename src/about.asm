@@ -16,7 +16,7 @@ extrn back_x1:word, back_y1:word
 extrn back_x2:word, back_y2:word
 
 ; graphics.asm
-extrn ClearScreen:far, PrintMessage:far
+extrn ClearScreen:far, PrintMessage:far, PrintAbout:far
 extrn PrintBackButton:far, OnActionBackButton:far
 extrn is_in_back_area:byte, delayClickMause:far
 
@@ -70,7 +70,9 @@ GoBackMenu endp
 ; Prints the information about the developers
 ;
 PrintInformation proc near
-    mov axis_x_offset, 4
+    call PrintAbout
+
+    mov axis_x_offset, 8
     mov axis_y_offset, 28
 
     mov dh, [axis_x_offset]

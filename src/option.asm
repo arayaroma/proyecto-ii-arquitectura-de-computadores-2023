@@ -30,7 +30,6 @@ extrn mouseXText:byte, mouseYText:byte
 extrn mouseX:word, mouseY:word
 extrn is_mouse_in:word, mouseStatus:word
 
-
 .data
     incrementLevel              db '+', '$'
     decrementLevel              db '-', '$'
@@ -76,9 +75,6 @@ clearOptions proc near
     mov is_in_play_area,0         
     mov levelCount,1
     mov letterCount,0
-    
-   
-
     mov cx, 20
     lea si,nombre
     clear_name:
@@ -88,7 +84,6 @@ clearOptions proc near
     loop clear_name
     mov levelNumberAux[0], al
     mov levelNumberAux[1], al
-
 ret
 clearOptions endp
 
@@ -96,13 +91,6 @@ OptionDriver proc far
     call clearOptions
     call ClearScreen
     call ShowMouse
-
-    xor dx, dx
-    call SetMousePosition
-
-    mov dx, offset option_text
-    call PrintMessage
-
     call PrintOption
     call MainOptionLoop
     ret
@@ -118,7 +106,6 @@ do_loop:
     jne continue
 
 in_back:
-    
     cmp [mouseStatus], 1
     je return_to_main_menu
 
@@ -142,11 +129,9 @@ return_to_main_menu:
 
 play_game:
     call GotoPlay
-
     ret
 
 increment:
-
     call GotoIncrement
     mov is_in_increment_area,0
     mov mouseStatus,0
@@ -156,7 +141,6 @@ increment:
     ret
 
 decrement:
-
     call GotoDecrement
     mov is_in_decrement_area,0
     mov mouseStatus,0
@@ -184,171 +168,164 @@ GotoDecrement proc near
 GotoDecrement endp
 
 PrintOption proc near
-
-    ;print message to input name
     mov axisXOffset, 12
     mov axisYOffset, 15
 
     mov dh, [axisXOffset]
     mov dl, [axisYOffset]
     call SetMousePosition
-
     mov dx, offset mensaje
     call PrintMessage
 
     add axisXOffset, 1
     add axisYOffset, 1
-            mov dh, 13
-            mov dl, 16
-            call SetMousePosition
+    mov dh, 13
+    mov dl, 16
+    call SetMousePosition
+
     lea di, nombre
-    loop_name:
-            ; Espera una tecla y la almacena en AL
-            xor ax, ax
-            MOV ah,0bh
-            int 21h
-            cmp al, 0
-            je loop_name
+loop_name:
+    ; Espera una tecla y la almacena en AL
+    xor ax, ax
+    mov ah, 0bh
+    int 21h
 
-            mov ah, 0
-            int 16h
+    cmp al, 0
+    je loop_name
 
-            
-            cmp al, 8
-            je delete_character
-            cmp al, 13
-            je end_loop_name
-            cmp al, 32
-            je loop_name
-            ; Concatena la tecla al nombre
-            inc letterCount
-            mov [di], al
-
-            ; Imprime el nombre
-            mov ah,2
-            mov dl,al
-            int 21h
-            ; mov dx, di
-            ; call PrintMessage
-            inc di
+    mov ah, 0
+    int 16h
     
-            
-        jmp loop_name
+    cmp al, 8
+    je delete_character
+    cmp al, 13
+    je end_loop_name
+    cmp al, 32
+    je loop_name
 
-    delete_character:
-        cmp letterCount, 0
-        je loop_name
-            mov ah,2
-            mov dl,8
-            int 21h
+    ; Concatena la tecla al nombre
+    inc letterCount
+    mov [di], al
 
-            mov ah,2
-            mov dl,' '
-            int 21h
-
-            mov ah,2
-            mov dl,8
-            int 21h
-            dec letterCount
-            dec di
-            mov byte ptr [di], 0
-
-            jmp loop_name
-
+    ; Imprime el nombre
+    mov ah,2
+    mov dl,al
+    int 21h
+    ; mov dx, di
+    ; call PrintMessage
+    inc di
     jmp loop_name
 
-    end_loop_name:
+delete_character:
+    cmp letterCount, 0
+    je loop_name
+    mov ah, 2
+    mov dl, 8
+    int 21h
+
+    mov ah, 2
+    mov dl, ' '
+    int 21h
+
+    mov ah, 2
+    mov dl, 8
+    int 21h
+
+    dec letterCount
+    dec di
+    mov byte ptr [di], 0
+    jmp loop_name
+    jmp loop_name
+
+end_loop_name:
     cmp letterCount, 0
     je loop_name
     mov al, "$"
     mov [di], al
-        call ClearScreen
-        call clear_xy_position
+    call ClearScreen
+    call clear_xy_position
 
-        mov axisXOffset, 12
-        mov axisYOffset, 15
+    mov axisXOffset, 12
+    mov axisYOffset, 15
 
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        call SetMousePosition
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+    mov dx, offset mensaje
+    call PrintMessage
 
-        mov dx, offset mensaje
-        call PrintMessage
+    add axisXOffset, 1
+    add axisYOffset, 1
 
-        add axisXOffset, 1
-        add axisYOffset, 1
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+    mov dx, offset nombre
+    call PrintMessage
 
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        call SetMousePosition
+    add axisXOffset, 4
+    add axisYOffset, 14
 
-        mov dx, offset nombre
-        call PrintMessage
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+    mov dx, offset level_message
+    call PrintMessage
 
-        add axisXOffset, 4
-        add axisYOffset, 14
+    add axisXOffset, 3
+    add axisYOffset, 3
 
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        call SetMousePosition
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+    mov dx, offset decrementLevel
+    call PrintMessage
 
-        mov dx, offset level_message
-        call PrintMessage
+    add axisYOffset, 3
 
-        add axisXOffset, 3
-        add axisYOffset, 3
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        call SetMousePosition
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
+    mov dx, offset levelTxt
+    call PrintMessage
 
-        mov dx, offset decrementLevel
-        call PrintMessage
+    add axisYOffset, 6
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    mov x_level, dh
+    mov y_level, dl
+    call SetMousePosition
 
-        add axisYOffset, 3
+    lea di, levelNumberAux
+    lea si, levelNumber
+    mov cx, 2
+ciclo_level:
+    mov ah,[si]
+    mov [di],ah
+    inc si
+    inc di
+    loop ciclo_level
 
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        call SetMousePosition
+    mov dx, offset levelNumberAux
+    call PrintMessage
 
-        mov dx, offset levelTxt
-        call PrintMessage
+    add axisYOffset, 3
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
 
-        add axisYOffset, 6
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        mov x_level, dh
-        mov y_level, dl
-        call SetMousePosition
-        lea di, levelNumberAux
-        lea si, levelNumber
-        mov cx, 2
-        ciclo_level:
-            mov ah,[si]
-            mov [di],ah
-            inc si
-            inc di
-        loop ciclo_level
+    mov dx, offset incrementLevel
+    call PrintMessage
 
-        mov dx, offset levelNumberAux
-        call PrintMessage
+    add axisXOffset,3
+    mov axisYOffset, 38
 
-        add axisYOffset, 3
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        call SetMousePosition
+    mov dh, [axisXOffset]
+    mov dl, [axisYOffset]
+    call SetMousePosition
 
-        mov dx, offset incrementLevel
-        call PrintMessage
-
-        add axisXOffset,3
-        mov axisYOffset, 38
-
-        mov dh, [axisXOffset]
-        mov dl, [axisYOffset]
-        call SetMousePosition
-
-        mov dx, offset play
-        call PrintMessage
+    mov dx, offset play
+    call PrintMessage
 ret
 PrintOption endp
 
@@ -562,8 +539,6 @@ print_level_update proc near
         loop delayClick2
         pop cx
     loop delayClick
-
-
 ret
 print_level_update endp
 

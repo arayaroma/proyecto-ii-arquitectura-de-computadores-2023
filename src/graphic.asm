@@ -8,7 +8,7 @@ public SetVideoMode, ClearScreen, PrintMessage
 public back_x1, back_y1, back_x2, back_y2
 public OnActionBackButton
 public is_in_back_area
-public printPause, PrintGameOverMessage, PrintMainTitle, PrintScoreBoard
+public printPause, PrintGameOverMessage, PrintMainTitle, PrintScoreBoard, PrintAbout
 
 ; about.asm
 extrn GoBackMenu:far
@@ -38,6 +38,11 @@ extrn px:byte, py:byte, colorPaint:byte, printLine:far
     score_middle_top        db '|   __|___ ___ ___ ___   | __  |___ ___ ___ _| |',                  10, 13, '$'
     score_middle_bot        db '|__   |  _| . |  _| -_|  | __ -| . | .`|  _| . |',                  10, 13, '$'
     score_bot               db '|_____|___|___|_| |___|  |_____|___|__,|_| |___|',                  10, 13, '$'
+
+    about_top               db ' _____ _           _',                                              10, 13, '$'   
+    about_middle_top        db '|  _  | |_ ___ _ _| |_',                                            10, 13, '$' 
+    about_middle_bot        db '|     | . | . | | |  _|',                                           10, 13, '$'
+    about_bot               db '|__|__|___|___|___|_|',                                             10, 13, '$' 
 
     msgpasue                db ' _____ _____ _____ _____ _____ ',                                   10, 13, '$'
     msgpasue1               db '|  _  |  _  |  |  |   __|   __|',                                   10, 13, '$'
@@ -192,6 +197,33 @@ PrintScoreBoard proc far
     call PrintMessage
     ret
 PrintScoreBoard endp
+
+PrintAbout proc far
+    mov dl, 26
+    mov dh, 2
+    call SetMousePosition
+    lea dx, about_top
+    call PrintMessage
+
+    mov dl, 26
+    mov dh, 3
+    call SetMousePosition
+    lea dx, about_middle_top
+    call PrintMessage
+
+    mov dl, 26
+    mov dh, 4
+    call SetMousePosition
+    lea dx, about_middle_bot
+    call PrintMessage
+
+    mov dl, 26
+    mov dh, 5
+    call SetMousePosition
+    lea dx, about_bot
+    call PrintMessage
+    ret
+PrintAbout endp
 
 ;   printRectangle
 ;
