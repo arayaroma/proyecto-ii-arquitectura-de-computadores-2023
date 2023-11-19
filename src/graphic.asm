@@ -8,9 +8,7 @@ public SetVideoMode, ClearScreen, PrintMessage
 public back_x1, back_y1, back_x2, back_y2
 public OnActionBackButton
 public is_in_back_area
-public printPause
-public PrintGameOverMessage
-
+public printPause, PrintGameOverMessage, PrintMainTitle, PrintScoreBoard
 
 ; about.asm
 extrn GoBackMenu:far
@@ -31,23 +29,31 @@ extrn px:byte, py:byte, colorPaint:byte, printLine:far
     back_y2                 dw 15
     is_in_back_area         db 0
 
-    msgpasue                db ' _____ _____ _____ _____ _____ ',               10,13, "$"
-    msgpasue1               db '|  _  |  _  |  |  |   __|   __|',               10,13, "$"
-    msgpasue2               db '|   __|     |  |  |__   |   __|',               10,13, "$"
-    msgpasue3               db '|__|  |__|__|_____|_____|_____|',               10,13, "$"
+    title_top               db ' _____       _ _                 _____',                            10, 13, '$'                         
+    title_middle_top        db '|   __|___ _| | |___ ___ ___    | __  |_ _ ___ ___ ___ ___ ___',    10, 13, '$' 
+    title_middle_bot        db '|   __|   | . | | -_|_ -|_ -|   |    -| | |   |   | -_|  _|_ -|',   10, 13, '$'
+    title_bot               db '|_____|_|_|___|_|___|___|___|   |__|__|___|_|_|_|_|___|_| |___|',   10, 13, '$'
 
-    game_over_top           db ' _____                  _____',                 10, 13, '$'             
-    game_over_middle_top    db '|   __|___ _____ ___   |     |_ _ ___ ___',     10, 13, '$' 
-    game_over_middle_bot    db '|  |  | .`|     | -_|  |  |  | | | -_|  _|',    10, 13, '$'
-    game_over_bot           db '|_____|__,|_|_|_|___|  |_____|\_/|___|_|',      10, 13, '$'  
+    score_top               db ' _____                    _____               _',                   10, 13, '$' 
+    score_middle_top        db '|   __|___ ___ ___ ___   | __  |___ ___ ___ _| |',                  10, 13, '$'
+    score_middle_bot        db '|__   |  _| . |  _| -_|  | __ -| . | .`|  _| . |',                  10, 13, '$'
+    score_bot               db '|_____|___|___|_| |___|  |_____|___|__,|_| |___|',                  10, 13, '$'
 
-    game_over_binary        db '01000111 01100001       01101101 01100101',     10, 13, '$'
-    game_over_binary_two    db '01001111 01110110       01100101 01110010',     10, 13, '$'
-    game_over_octal         db '107 141  155 145        117 166  145 162',      10, 13, '$'
-    game_over_hex           db '47  61   6D  65         4F  76   65  72',       10, 13, '$'
-;  ╦╦ ╦╔═╗╔═╗╦═╗
-;  ║║ ║║ ╦╠═╣╠╦╝
-; ╚╝╚═╝╚═╝╩ ╩╩╚═
+    msgpasue                db ' _____ _____ _____ _____ _____ ',                                   10, 13, '$'
+    msgpasue1               db '|  _  |  _  |  |  |   __|   __|',                                   10, 13, '$'
+    msgpasue2               db '|   __|     |  |  |__   |   __|',                                   10, 13, '$'
+    msgpasue3               db '|__|  |__|__|_____|_____|_____|',                                   10, 13, '$'
+
+    game_over_top           db ' _____                  _____',                                     10, 13, '$'             
+    game_over_middle_top    db '|   __|___ _____ ___   |     |_ _ ___ ___',                         10, 13, '$' 
+    game_over_middle_bot    db '|  |  | .`|     | -_|  |  |  | | | -_|  _|',                        10, 13, '$'
+    game_over_bot           db '|_____|__,|_|_|_|___|  |_____|\_/|___|_|',                          10, 13, '$'  
+
+    game_over_binary        db '01000111 01100001       01101101 01100101',                         10, 13, '$'
+    game_over_binary_two    db '01001111 01110110       01100101 01110010',                         10, 13, '$'
+    game_over_octal         db '107 141  155 145        117 166  145 162',                          10, 13, '$'
+    game_over_hex           db '47  61   6D  65         4F  76   65  72',                           10, 13, '$'
+
 .code
 
 ;   SetVideoMode
@@ -113,6 +119,7 @@ OnActionBackButton endp
 
 ;   PrintBackButton
 ;
+;   Prints the back button on any screen
 PrintBackButton proc far
     mov axis_x, 0
     mov axis_y, 0
@@ -126,11 +133,71 @@ PrintBackButton proc far
     ret
 PrintBackButton endp
 
+;   PrintMainTitle
+;
+;   Prints the main title of the game
+PrintMainTitle proc far
+    mov dl, 10
+    mov dh, 2
+    call SetMousePosition
+    lea dx, title_top
+    call PrintMessage
+
+    mov dl, 10
+    mov dh, 3
+    call SetMousePosition
+    lea dx, title_middle_top
+    call PrintMessage
+
+    mov dl, 10
+    mov dh, 4
+    call SetMousePosition
+    lea dx, title_middle_bot
+    call PrintMessage
+
+    mov dl, 10
+    mov dh, 5
+    call SetMousePosition
+    lea dx, title_bot
+    call PrintMessage
+    ret
+PrintMainTitle endp
+
+;   PrintScoreBoard
+;
+;   Prints the score board of the game
+PrintScoreBoard proc far
+    mov dl, 16
+    mov dh, 2
+    call SetMousePosition
+    lea dx, score_top
+    call PrintMessage
+
+    mov dl, 16
+    mov dh, 3
+    call SetMousePosition
+    lea dx, score_middle_top
+    call PrintMessage
+
+    mov dl, 16
+    mov dh, 4
+    call SetMousePosition
+    lea dx, score_middle_bot
+    call PrintMessage
+
+    mov dl, 16
+    mov dh, 5
+    call SetMousePosition
+    lea dx, score_bot
+    call PrintMessage
+    ret
+PrintScoreBoard endp
+
 ;   printRectangle
 ;
 printRectangle proc far
     Mov ah, 07h
-    Mov al, 0   ; DESPLASAMINETO //
+    Mov al, 0           ; DESPLAZAMIENTO
     Mov bh, colorPaint  ; COLOR DE FONDO
     Mov ch, py 
     Mov cl, px
@@ -149,22 +216,24 @@ printPause proc far
     call SetMousePosition
     lea dx, msgpasue
     call PrintMessage
-        mov dl,23
+
+    mov dl,23
     mov dh,11
     call SetMousePosition
     lea dx, msgpasue1
     call PrintMessage
-        mov dl,23
+
+    mov dl,23
     mov dh,12
     call SetMousePosition
     lea dx, msgpasue2
     call PrintMessage
+
     mov dl,23
     mov dh,13
     call SetMousePosition
     lea dx, msgpasue3
     call PrintMessage
-
     ret
 printPause endp
 
@@ -216,7 +285,7 @@ PrintGameOverMessage proc far
     call SetMousePosition
     lea dx, game_over_hex
     call PrintMessage
-
     ret
 PrintGameOverMessage endp
+
 end

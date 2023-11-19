@@ -9,7 +9,6 @@ public AboutDriver, GoBackMenu
 extrn MenuDriver:far
 
 ; mouse.asm
-extrn SetMousePosition:far
 extrn ShowMouse:far, HideMouse:far
 extrn SetMousePosition:far, GetMousePosition:far
 extrn is_mouse_in:word, mouseStatus:word
@@ -17,12 +16,10 @@ extrn back_x1:word, back_y1:word
 extrn back_x2:word, back_y2:word
 
 ; graphics.asm
-extrn ClearScreen:far
-extrn PrintMessage:far
-extrn PrintBackButton:far
-extrn OnActionBackButton:far
-extrn is_in_back_area:byte
-extrn delayClickMause:far
+extrn ClearScreen:far, PrintMessage:far
+extrn PrintBackButton:far, OnActionBackButton:far
+extrn is_in_back_area:byte, delayClickMause:far
+
 .data
     endless_runners_text    db 'Endless Runners', '$'
     developed_by_text       db 'Developed by', '$'

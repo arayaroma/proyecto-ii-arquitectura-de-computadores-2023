@@ -5,20 +5,18 @@
 .model small
 public MenuDriver, PrintMenu
 public play_text_x1, play_text_y1, play_text_x2, play_text_y2
-public scoreboard_text_x1, scoreboard_text_y1, scoreboard_text_x2, scoreboard_text_y2
 public about_text_x1, about_text_y1, about_text_x2, about_text_y2
+public scoreboard_text_x1, scoreboard_text_y1, scoreboard_text_x2, scoreboard_text_y2
 
 ; graphics.asm
-extrn ClearScreen:far
-extrn SetVideoMode:far
-extrn PrintMessage:far
+extrn ClearScreen:far, SetVideoMode:far, PrintMessage:far
+extrn PrintMainTitle:far
 
 ; board.asm
 extrn BoardDriver:far
 
 ; ascii.asm
-extrn ConvertToASCII:far
-extrn DisplayASCII:far
+extrn ConvertToASCII:far, DisplayASCII:far
 
 ; about.asm
 extrn AboutDriver:far
@@ -30,16 +28,11 @@ extrn OptionDriver:far
 extrn ScoreboardDriver:far
 
 ; mouse.asm
-extrn GetMousePosition:far
-extrn SetMousePosition:far
-extrn ShowMouse:far
-extrn HideMouse:far
-extrn mouseXText:byte
-extrn mouseYText:byte
-extrn mouseX:word
-extrn mouseY:word
-extrn is_mouse_in:word
-extrn mouseStatus:word
+extrn GetMousePosition:far, SetMousePosition:far
+extrn ShowMouse:far, HideMouse:far
+extrn mouseXText:byte, mouseYText:byte
+extrn mouseX:word, mouseY:word
+extrn is_mouse_in:word, mouseStatus:word
 
 .data
     titleText               db '[Endless Runners]', '$'
@@ -75,16 +68,20 @@ extrn mouseStatus:word
 ; This procedure will print the menu on the screen.
 ;
 PrintMenu proc far
+    ; mov axisXOffset, 8
+    ; mov axisYOffset, 31
+
+    ; mov dh, [axisXOffset]
+    ; mov dl, [axisYOffset]
+    ; call SetMousePosition
+
+    ; mov dx, offset titleText 
+    ; call PrintMessage
+
+    call PrintMainTitle
+
     mov axisXOffset, 8
     mov axisYOffset, 31
-
-    mov dh, [axisXOffset]
-    mov dl, [axisYOffset]
-    call SetMousePosition
-
-    mov dx, offset titleText 
-    call PrintMessage
-
     add axisYOffset, 6
     add axisXOffset, 3
 

@@ -3,36 +3,28 @@
 ;
 .8086
 .model small
-public ScoreboardDriver
-public ConvertScoreTxt
-public driverValidate
+public ScoreboardDriver, ConvertScoreTxt, driverValidate
 
 ; about.asm
 extrn OnActionBackButton:far
 
 ;board 
-extrn scorePlayer:word , player_score_value:byte
+extrn scorePlayer:word, player_score_value:byte
 
 ; menu.asm
 extrn MenuDriver:far
 
 ; mouse.asm
-extrn SetMousePosition:far
-extrn ShowMouse:far
-extrn GetKeyPressed:far
-extrn HideMouse:far
-extrn mouseStatus:byte
-extrn delayClickMause:far
+extrn SetMousePosition:far, ShowMouse:far, GetKeyPressed:far
+extrn HideMouse:far, mouseStatus:byte, delayClickMause:far
+
 ; graphics.asm
-extrn ClearScreen:far
-extrn PrintMessage:far
-extrn nombre:byte
-extrn PrintBackButton:far, OnActionBackButton:far
-extrn is_in_back_area:byte
+extrn ClearScreen:far, PrintMessage:far, nombre:byte
+extrn PrintBackButton:far, OnActionBackButton:far, is_in_back_area:byte
+extrn PrintScoreBoard:far
 
 .data
     score				db "../src/score/score",0
-
     scoreboard_text 	db 'Scoreboard', '$'
     handle 				dw 0          ; Handle del archivo
     ScoreTable 			db "Score Table", "$"
@@ -52,6 +44,7 @@ extrn is_in_back_area:byte
 	puntaje3Int 		dw  0 
 	auxNumberConvert  	db 10 dup(" ")
 	txt 				db " ", 0
+
 .code
 
 clearScoreName proc near
@@ -349,11 +342,12 @@ close_file proc near
 close_file endp
 
 PrintScore proc near
-    mov dh, 6
-    mov dl, 35 
-    call SetMousePosition
-    mov dx, offset ScoreTable 
-    call PrintMessage
+    ; mov dh, 6
+    ; mov dl, 35 
+    ; call SetMousePosition
+    ; mov dx, offset ScoreTable 
+    ; call PrintMessage
+	call PrintScoreBoard
 
     mov dh, 9
     mov dl, 30 
