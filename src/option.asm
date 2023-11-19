@@ -88,10 +88,12 @@ ret
 clearOptions endp
 
 OptionDriver proc far
+    
+    call HideMouse
     call clearOptions
     call ClearScreen
-    call ShowMouse
     call PrintOption
+    call ShowMouse
     call MainOptionLoop
     ret
 OptionDriver endp
