@@ -70,7 +70,30 @@ extrn is_mouse_in:word, mouseStatus:word
 
 .code
 
+clearOptions proc near
+    mov is_in_increment_area,0       
+    mov is_in_decrement_area,0        
+    mov is_in_play_area,0         
+    mov levelCount,1
+    mov letterCount,0
+    
+   
+
+    mov cx, 20
+    lea si,nombre
+    clear_name:
+        mov al,' '
+        mov [si],al 
+        inc si
+    loop clear_name
+    mov levelNumberAux[0], al
+    mov levelNumberAux[1], al
+
+ret
+clearOptions endp
+
 OptionDriver proc far
+    call clearOptions
     call ClearScreen
     call ShowMouse
 
@@ -118,16 +141,27 @@ return_to_main_menu:
 
 play_game:
     call GotoPlay
+
     ret
 
 increment:
-    call HideMouse
+
     call GotoIncrement
+    mov is_in_increment_area,0
+    mov mouseStatus,0
+    mov is_mouse_in,0
+    mov [mouseX], 0
+    mov [mouseY], 0
     ret
 
 decrement:
-    call HideMouse
+
     call GotoDecrement
+    mov is_in_decrement_area,0
+    mov mouseStatus,0
+    mov is_mouse_in,0
+    mov [mouseX], 0
+    mov [mouseY], 0
     ret
 MainOptionLoop endp
 
@@ -139,12 +173,12 @@ GotoPlay proc near
 GotoPlay endp
 
 GotoIncrement proc near
-    call HideMouse
+    ;call HideMouse
     ret
 GotoIncrement endp
 
 GotoDecrement proc near
-    call HideMouse
+    ;call HideMouse
     ret
 GotoDecrement endp
 
@@ -178,7 +212,7 @@ PrintOption proc near
             mov ah, 0
             int 16h
 
-            inc letterCount
+            
             cmp al, 8
             je delete_character
             cmp al, 13
@@ -186,13 +220,8 @@ PrintOption proc near
             cmp al, 32
             je loop_name
             ; Concatena la tecla al nombre
+            inc letterCount
             mov [di], al
-
-            ;add axisYOffset, 1
-
-            ; mov dh, [axisXOffset]
-            ; mov dl, [axisYOffset]
-            ; call SetMousePosition
 
             ; Imprime el nombre
             mov ah,2
@@ -201,11 +230,13 @@ PrintOption proc near
             ; mov dx, di
             ; call PrintMessage
             inc di
-            ; Comprueba si se presionó la tecla Enter (código ASCII 13)
+    
             
         jmp loop_name
 
     delete_character:
+        cmp letterCount, 0
+        je loop_name
             mov ah,2
             mov dl,8
             int 21h
@@ -217,7 +248,7 @@ PrintOption proc near
             mov ah,2
             mov dl,8
             int 21h
-
+            dec letterCount
             dec di
             mov byte ptr [di], 0
 
@@ -226,6 +257,8 @@ PrintOption proc near
     jmp loop_name
 
     end_loop_name:
+    cmp letterCount, 0
+    je loop_name
     mov al, "$"
     mov [di], al
         call ClearScreen
@@ -468,7 +501,7 @@ click_on_play:
     jmp return
 
 click_on_increment:
-    call HideMouse
+
     xor di,di
     xor si,si
     lea di, levelNumberAux
@@ -482,12 +515,12 @@ end_click_on_increment:
     jmp return
 
 click_on_decrement:
-    call HideMouse
+  
     xor di,di
     xor si,si
     lea di, levelNumberAux
     lea si, levelNumber
-    cmp levelCount, 1
+    cmp levelCount, 2
     jb end_click_on_decrement
     dec levelCount
     call print_level_update
@@ -520,8 +553,16 @@ print_level_update proc near
     call SetMousePosition
     mov dx, offset levelNumberAux
     call PrintMessage
-    mov ah, 00H ; wait for keypress
-    int 16H
+    mov cx,4
+    delayClick:
+        push cx
+        mov cx,60000
+        delayClick2:
+        loop delayClick2
+        pop cx
+    loop delayClick
+
+
 ret
 print_level_update endp
 

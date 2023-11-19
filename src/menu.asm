@@ -297,6 +297,7 @@ play:
     ret
 scoreboard:
     call GotoScoreboard
+    
     ret
 about:
     call GotoAbout

@@ -32,6 +32,7 @@ extrn is_in_back_area:byte
 
 .data
     score				db "../src/score/score",0
+
     scoreboard_text 	db 'Scoreboard', '$'
     handle 				dw 0          ; Handle del archivo
     ScoreTable 			db "Score Table", "$"
@@ -90,7 +91,6 @@ clear_AuxNumber proc near
 clear_AuxNumber endp
 
 ; ax, numero a convertir
-
 ; di, resultado
 ConvertScoreTxt proc far
 	call clear_AuxNumber
@@ -216,6 +216,56 @@ read_file proc near
 	mov [si], ah
 ret
 read_file endp
+
+convertirCadena proc near
+; Después de obtener las cadenas de puntajes
+	lea si, puntaje1
+	call ConvertirCadenaAEntero
+	mov puntaje1Int, ax
+
+	lea si, puntaje2
+	call ConvertirCadenaAEntero
+	mov puntaje2Int, ax
+
+	lea si, puntaje3
+	call ConvertirCadenaAEntero
+	mov puntaje3Int, ax
+ret
+convertirCadena endp
+
+ConvertirCadenaAEntero proc near
+	xor ax, ax ; Limpiar AX
+    xor dx, dx ; Limpiar DX
+convertirLoop:
+    ; Cargar el carácter actual de la cadena
+	xor bx , bx
+    MOV bl, [SI]
+
+    ; Verificar si es el carácter nulo (fin de la cadena)
+    CMP bl, "$"
+    JE  finConvertir
+
+    ; Convertir el carácter ASCII a número (suponiendo dígitos decimales)
+    SUB bl, '0'
+
+	add ax, bx
+
+	MOV bl,[SI+1]
+	CMP bl, "$"
+	JE finConvertir
+    ; Multiplicar el número actual por 10
+    MOV BX, 10
+    MUL BX
+    ; Sumar el dígito convertido
+    ; Mover al siguiente carácter en la cadena
+    INC SI
+
+    ; Repetir el bucle de conversión
+    JMP convertirLoop
+
+finConvertir:
+ret
+ConvertirCadenaAEntero endp
 
 inc_buffer proc near
 	mov ah, 3Fh
@@ -419,17 +469,17 @@ validaciones proc near
 	xor dx, dx
 	mov dx, scorePlayer
 	cmp dx, puntaje1Int
-	jae end_validate  
+	jb end_validate  
 	call evaluate3_position
 	
 	mov dx, scorePlayer
 	cmp dx,puntaje2Int
-	jae end_validate
+	jb end_validate
 	call evaluate2_position
 
 	mov dx, scorePlayer
 	cmp dx, puntaje3Int
-	jae end_validate
+	jb end_validate
 	call evaluate1_position
 	
 end_validate:
@@ -441,7 +491,7 @@ driverValidate proc far
 	
 	call read_file
 	call close_file
-		
+	call convertirCadena
 	call validaciones	
 
 	call clear_file

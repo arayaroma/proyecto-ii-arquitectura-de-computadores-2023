@@ -15,7 +15,7 @@ extrn OpenFile:far, getNextLine:far, CloseFile:far, driverValidate:far
 
 ; move.asm
 extrn move:far, printPause:far
-
+extrn playHit:far, playBonus:far
 ; mouse.asm
 extrn ShowMouse:far, SetMousePosition:far, GetKeyPressed:far
 
@@ -33,16 +33,6 @@ extrn PrintGameOverMessage:far
 extrn ConvertScoreTxt:far
 
 .data 
-    bonusPath db "../src/audio/bonus.wav"
-    ; Handle del archivo
-    filehandle          dw 0          
-
-    ; Increase the bufferAudio size to 1 byte
-    bufferAudio         db 0              
-
-    delayAudio          dw 20 
-    hit1Path            db "../src/audio/hit1.wav"
-
     endless_runners     db "Endless Runners", '$'
     player_name         db "Player: ", '$'
     game_over_txt       db "Game Over", '$' 
@@ -74,7 +64,7 @@ extrn ConvertScoreTxt:far
     second              db 0
     isChangeSec         db 0
     miliSec             db 0
-    gameDelay           db 40
+    gameDelay           db 0
     nextSeco            db 0
     minute              db 0
     isChange            db 0
@@ -83,6 +73,25 @@ extrn ConvertScoreTxt:far
     delayTxt            db 2 dup(' ') , '$'
 
 .Code
+
+clearPatter proc
+    mov cx, 250
+    lea si, pattern
+    loopClear:
+        mov al, ' '
+        mov [si], al
+        inc si
+        loop loopClear
+    mov scorePlayer, 0
+    lea si,player_score_value
+    mov cx,10
+    loopClear2:
+        mov al, ' '
+        mov [di], al
+        inc di
+        loop loopClear2
+ret
+clearPatter endp
 
 PrintHeaders proc near
     mov dh, 0
@@ -101,8 +110,6 @@ PrintHeaders proc near
     mov dl, [player_score_y+2]
     lea dx, nombre
     call PrintMessage
-
-    
 
     mov dh, [player_lives_x]
     mov dl, [player_lives_y]
@@ -171,84 +178,14 @@ ret
 printLvl endp
 
 caluDelay proc near
-    cmp levelCount, 1
-    je level1
-    cmp levelCount, 2
-    je level2
-    cmp levelCount, 3
-    je level3
-    cmp levelCount, 4
-    je level4
-    cmp levelCount, 5
-    je level5
-    cmp levelCount, 6
-    je level6
-    cmp levelCount, 7
-    je level7
-    cmp levelCount, 8
-    je level8
-    cmp levelCount, 9
-    je level9
-    cmp levelCount, 10
-    je level10
-    cmp levelCount, 11
-    je level11
-    cmp levelCount, 12
-    je level12
-    cmp levelCount, 13
-    je level13
-    cmp levelCount, 14
-    je level14
-    cmp levelCount, 15
-    je level15
-
-
-    ; UP LVE  gameDelay = 100*0.95 
-    level1:
-    mov gameDelay, 99
-    jmp endCaluDelay
-    level2:
-    mov gameDelay, 95
-    jmp endCaluDelay
-    level3:
-    mov gameDelay, 90
-    jmp endCaluDelay
-    level4:
-    mov gameDelay, 85
-    jmp endCaluDelay
-    level5:
-    mov gameDelay, 80
-    jmp endCaluDelay
-    level6:
-    mov gameDelay, 75
-    jmp endCaluDelay
-    level7:
-    mov gameDelay, 70
-    jmp endCaluDelay
-    level8:
-    mov gameDelay, 65
-    jmp endCaluDelay
-    level9:
-    mov gameDelay, 60
-    jmp endCaluDelay
-    level10:
-    mov gameDelay, 55
-    jmp endCaluDelay
-    level11:
-    mov gameDelay, 50
-    jmp endCaluDelay
-    level12:
-    mov gameDelay, 45
-    jmp endCaluDelay
-    level13:
-    mov gameDelay, 40
-    jmp endCaluDelay
-    level14:
-    mov gameDelay, 35
-    jmp endCaluDelay
-    level15:
-    mov gameDelay, 30
-    jmp endCaluDelay
+    xor cx, cx  
+    mov cl,levelCount
+    mov ax,99
+    loopCalCu:
+    sub ax, 5
+    loop loopCalCu
+    mov gameDelay, al
+    
     endCaluDelay:
     xor ax, ax
     mov al,gameDelay
@@ -391,6 +328,11 @@ isMoveNave proc
     je moveUp
     cmp al, 115 ; s
     je moveDown
+    cmp ah, 48h
+    je moveUp
+    cmp ah, 50h
+    je moveDown
+
     cmp al, 112 ;p ascii code 112
     je pause
     jmp endNoMove
@@ -443,6 +385,7 @@ ret
 isMoveNave endp
 
 pauseGame proc near
+  
     call ClearScreen
     call printPause
     loopPause:
@@ -464,7 +407,7 @@ pauseGame proc near
 ret
 pauseGame endp
 lostLiveProc proc near
-
+    call playHit
     dec player_lives_cant
     call ClearScreen
     call PrintHeaders
@@ -542,6 +485,7 @@ ColitionCmp endp
 decLevelProc proc near
     cmp levelCount, 1
     je endDecLevel
+    call playBonus
     dec levelCount
     call caluDelay
     endDecLevel:
@@ -552,6 +496,7 @@ upLevelProc proc near
     cmp levelCount, 15
     je endUpLevel
     inc levelCount
+    call playBonus
     cmp levelCount, 15
     je endUpLevel
     inc levelCount
@@ -564,6 +509,7 @@ upLevelProc endp
 up_love proc near
     cmp player_lives_cant, 3
     je endUpLove
+    call playBonus
     inc player_lives_cant
     call PrintHeaders
     endUpLove:
@@ -678,6 +624,7 @@ BoardDriver proc far
     call PrintPauseMessage
     call OpenFile   
     call ShowMouse
+    call clearPatter
     call board
     call caluDelay
     call printScore
@@ -692,66 +639,7 @@ BoardDriver proc far
     ret
 BoardDriver endp
 
-read proc near   ; Read next sample
-    push bx
-    push cx
-    push dx
-    mov ah, 3Fh
-    mov bx, [filehandle]
-    mov cx, 1
-    lea dx, [bufferAudio]
-    int 21h
-    cmp cx, ax 
-    je errorcode
-    mov al, [bufferAudio]
-    xor ah, ah
-    mov bl, 54
-    mul bx
-    shr ax, 8
-    jmp endxd
 
-
-
-    endxd:
-    pop dx
-    pop cx
-    pop bx
-    ret
-read endp
-
-
-
-PlayMusic proc near
-    mov ah, 3Dh
-    xor al, al
-  
-    int 21h
-    mov [filehandle], ax
-    mov al, 90h
-    out 43h, al
-    in al, 61h
-    or al, 3
-    out 61h, al
-    cli
-    mov ax, 0
-totalloop:
-    call read ; Read file
-    out 42h, al ; Send data
-    mov cx, [delayAudio]
-rloop:
-    loop rloop
-    jmp totalloop
-    ret
-errorcode:
-    ;Close
-    sti
-    mov al, 86h
-    out 43h, al
-    mov ah, 3Eh
-    mov bx, [filehandle]
-    int 21h
-    ret
-PlayMusic endp
 
 
 

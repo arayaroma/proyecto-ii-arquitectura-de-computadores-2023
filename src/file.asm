@@ -5,7 +5,7 @@
 .8086
 .model small
 public OpenFile, closeFile , getNextLine
-; public OpenScoreFile, WriteScoreFile
+public playHit, configAudio,playBonus
 
 ; move.asm
 extrn movimiento:byte
@@ -40,17 +40,39 @@ extrn PrintMessage:far
 	pat9 				    db "../src/patterns/pat9"
 	null9 					db 0
 	pat10 				    db "../src/patterns/pat10"
-
+	null10 					db 0
 
     handle 					dw 0
-
+	hit1Path            	db "../src/audio/hit1.wav"
+	null12 					db 0
+	bonusPath            	db "../src/audio/bn.wav"
+	null13 					db 0
 	is_open_error           db ?
     is_read_error           db ?
     open_error_message      db "Error opening file!", '$'
     read_error_message      db "Error reading file!", '$'
-	;randomNumber 			db 0
+	filehandle dw 0          ; Handle del archivo
+    bufferAudio db 0              ; Increase the bufferAudio size to 1 byte
+
+    delayAudio dw 20 
+
 .code
 
+playHit proc far
+
+    mov filehandle,0
+    lea dx, hit1Path
+    call PlayMusic
+ret
+playHit endp
+
+playBonus proc far
+
+	mov filehandle,0
+	lea dx, bonusPath
+	call PlayMusic
+ret
+playBonus endp
 
 loadPattern proc near
 	mov bx, 10
@@ -187,6 +209,7 @@ getNextLine proc far
 	pop ax
 	ret
 getNextLine endp
+
 setwildcards proc 
 
 	lea di,movimiento
@@ -210,16 +233,16 @@ setwildcards proc
 	je setGreen
 	jmp endSetWildcards
 	setRed:
-	mov al, "r"
+	mov al, 'r'
 	mov [di], al
 	jmp endSetWildcards
 	setGreen:
-	mov al, "v"
+	mov al, 'v'
 	mov [di], al
 	jmp endSetWildcards
 
 	setBlue:
-	mov al, "a"
+	mov al, 'a'
 	mov [di], al
 	jmp endSetWildcards
 
@@ -262,25 +285,6 @@ ClearVariables proc near
 	ret
 ClearVariables endp
 
-; generateBasicRandomNumber proc
-; 	mov ax, 40h
-; 	mov es, ax
-; 	mov ax, [es:6Ch]
-; 	and al, 00000111b
-; 	mov [randomNumber], al
-; 	mov ax, 40h
-; 	mov es, ax
-; 	mov ax, [es:6Ch]
-; 	and al, 00000001b
-; 	add [randomNumber], al
-; 	mov ax, 40h
-; 	mov es, ax
-; 	mov ax, [es:6Ch]
-; 	and al, 00000001b
-; 	add [randomNumber], al
-; 	ret
-; generateBasicRandomNumber endp
-;----------------------------------------------
 ; set bx limit
 ; return random number in dx
 randomNumber proc near
@@ -292,5 +296,54 @@ randomNumber proc near
 ret
 randomNumber endp
 
+read proc  
+    getBit:
+    mov ah, 3Fh
+    mov bx, filehandle
+    mov cx, 1
+    lea dx, bufferAudio
+    int 21h
+    cmp cx, ax 
+    jne endFile
+    xor ax, ax
+    mov al, bufferAudio
+    mov bl, 54
+    mul bx
+    shr ax, 8
+    out 42h, al ; Send data
+    mov cx, delayAudio
+    rloop:
+    loop rloop
+    jmp getBit
+    endFile:
+    ret
+read endp
+
+
+
+PlayMusic proc  
+    mov ah, 3Dh
+	mov al, 00h
+    int 21h
+    mov filehandle, ax
+
+    call read
+
+    mov ah, 3Eh
+    mov bx, filehandle
+    int 21h
+    ret
+PlayMusic endp
+
+configAudio proc far
+    mov al, 90h
+    out 43h, al
+    in al, 61h
+    or al, 3
+    out 61h, al
+    cli
+
+ret
+configAudio endp
 
 end
