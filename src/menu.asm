@@ -290,19 +290,20 @@ do_loop:
     jmp do_loop
 
 play:
+
     call GotoPlay
-    ret
+
 scoreboard:
     call GotoScoreboard
     
-    ret
+
 about:
     call GotoAbout
     ret
 MainMenuLoop endp
 
 GotoPlay proc near
-    call HideMouse
+
     call OptionDriver
     ret
 GotoPlay endp
