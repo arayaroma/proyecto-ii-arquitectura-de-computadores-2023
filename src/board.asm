@@ -290,9 +290,26 @@ xor si, si
                 je naveColicion
                 cmp ah,'*'
                 je obstaculo
-                mov colorPaint, 56
-                call printRectangle
+                cmp ah,'r'
+                je upLevelC2
+                cmp ah,'a'
+                je upLive2
+                cmp ah,'v'
+                je downLevel2
+                jmp obstaculo
+            upLevelC2:
+                mov colorPaint, 4
                 jmp nextPiece
+            upLive2:
+                mov colorPaint, 1
+                jmp nextPiece
+            downLevel2:
+                mov colorPaint, 2
+                jmp nextPiece
+
+                ; mov colorPaint, 56
+                ; call printRectangle
+                ; jmp nextPiece
                 naveNormal:
                 mov colorPaint, 5
                 jmp nextPiece
