@@ -71,7 +71,8 @@ extrn ConvertScoreTxt:far
     scorePlayer         dw 0
     levelTxtNumber      db 2 dup(' ') , '$'
     delayTxt            db 2 dup(' ') , '$'
-
+    is_hit              db 0
+    is_bonus            db 0
 .Code
 
 clearPatter proc
@@ -106,6 +107,7 @@ ret
 clearPatter endp
 
 PrintHeaders proc near
+    
     mov dh, 0
     mov dl, 33
     call SetMousePosition
@@ -191,7 +193,7 @@ printLvl endp
 caluDelay proc near
     xor cx, cx  
     mov cl,levelCount
-    mov ax,99
+    mov ax,104
     loopCalCu:
     sub ax, 5
     loop loopCalCu
@@ -199,14 +201,7 @@ caluDelay proc near
     
     endCaluDelay:
     xor ax, ax
-    mov al,gameDelay
-    lea di, delayTxt
-    call ConvertScoreTxt
-    mov dh, 0
-    mov dl, 0
-    call SetMousePosition
-    lea dx, delayTxt
-    call PrintMessage
+
     call printLvl
 ret
 caluDelay endp
@@ -415,12 +410,12 @@ endPause:
 pauseGame endp
 
 lostLiveProc proc near
-    call playHit
+    push ax bx cx dx si di  
     dec player_lives_cant
     call ClearScreen
     call PrintHeaders
     call board
-   
+    mov is_hit, 1
     cmp player_lives_cant, 0
     je endGame
     jmp endLostLive
@@ -430,7 +425,10 @@ endGame:
     call game_over
     
 endLostLive:
+
+    pop di si dx cx bx ax
     ret
+
 lostLiveProc endp
 
 ColitionCmp proc
@@ -484,40 +482,64 @@ ColitionCmp proc
             inc di
             jmp loopColition
         endColition:
+
     ret
 ColitionCmp endp
 
+isPlayAudio proc 
+    cmp is_hit, 1
+    je playHi
+    cmp is_bonus, 1
+    je playBon
+    jmp endPlayAudio
+    playHi:
+        call playHit
+        mov is_hit, 0
+        jmp endPlayAudio
+    playBon:
+        call playBonus
+        mov is_bonus, 0
+        jmp endPlayAudio
+    endPlayAudio:
+ret
+isPlayAudio endp
 decLevelProc proc near
+    push ax bx cx dx si di
     cmp levelCount, 1
     je endDecLevel
-    call playBonus
+    mov is_bonus, 1
     dec levelCount
     call caluDelay
 endDecLevel:
+    pop di si dx cx bx ax
     ret
 decLevelProc endp
 
 upLevelProc proc near
+    push ax bx cx dx si di
     cmp levelCount, 15
     je endUpLevel
     inc levelCount
-    call playBonus
+    mov is_bonus, 1
     cmp levelCount, 15
     je endUpLevel
     inc levelCount
     
 endUpLevel:
     call caluDelay
+    pop di si dx cx bx ax
     ret
 upLevelProc endp
 
 up_love proc near
+    push ax bx cx dx si di
     cmp player_lives_cant, 3
     je endUpLove
-    call playBonus
+    mov is_bonus, 1
     inc player_lives_cant
     call PrintHeaders
 endUpLove:
+    pop di si dx cx bx ax
     ret
 up_love endp
 
@@ -627,6 +649,7 @@ BoardDriver proc far
     call printScore
 
 playing:
+    call isPlayAudio
     call cronom20
     call isMoveNave
     call delay    
