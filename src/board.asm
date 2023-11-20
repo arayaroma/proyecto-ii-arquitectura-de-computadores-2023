@@ -479,18 +479,25 @@ ColitionCmp proc
             mov [di],bl
             jmp freeColision
             lostLive:
+
                 mov [di],bh
                 call lostLiveProc
                 jmp freeColision
             getLive:
+                mov dl ,' '
+                mov [si],dl
                 mov [di],bl
                 call up_love
                 jmp freeColision
             upLevelCmp:
+                mov dl ,' '
+                mov [si],dl
                 mov [di],bl
                 call upLevelProc
                 jmp freeColision
             decLevel:
+                mov dl ,' '
+                mov [si],dl
                 mov [di],bl
                 call decLevelProc
                 jmp freeColision
