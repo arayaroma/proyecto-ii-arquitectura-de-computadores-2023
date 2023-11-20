@@ -57,6 +57,8 @@ extrn PrintMessage:far
     bufferAudio db 0              ; Increase the bufferAudio size to 1 byte
     delayAudio dw 20 
 
+	lastCom 				dw ?
+
 .code
 
 playHit proc far
@@ -205,10 +207,10 @@ getNextLine proc far
 	call OpenFile
 	jmp init
 	return:
-	mov bx,7
-	call randomNumber
-	cmp dx,5
-	jne endGetNextLine
+	; mov bx,7
+	; call randomNumber
+	; cmp dx,5
+	; jne endGetNextLine
 	call setwildcards
 
 
@@ -231,15 +233,20 @@ setwildcards proc
 	jmp loopFree
 	fildFree:
 	inc di
-
-	mov bx, 3 
+	getNumWildcards:
+	mov bx, 13
 	call randomNumber
 
-	cmp dx, 0
+	cmp lastCom, dx
+	je getNumWildcards
+	mov lastCom, dx
+
+
+	cmp dx, 4
 	je setRed
-	cmp dx, 1
+	cmp dx, 8
 	je setBlue
-	cmp dx, 2
+	cmp dx, 12
 	je setGreen
 	jmp endSetWildcards
 	setRed:
