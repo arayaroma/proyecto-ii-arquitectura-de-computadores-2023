@@ -10,6 +10,7 @@ bin\tasm /zi src\mouse.asm
 bin\tasm /zi src\board.asm
 bin\tasm /zi src\move.asm
 bin\tasm /zi src\file.asm
+pause
 bin\tasm /zi src\score.asm
 bin\tasm /zi src\about.asm
 bin\tasm /zi src\option.asm

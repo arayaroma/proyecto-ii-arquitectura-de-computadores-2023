@@ -6,7 +6,7 @@
 .8086
 .model small
 public OpenFile, closeFile , getNextLine
-public playHit, configAudio,playBonus
+public playHit, configAudio,playBonus, playGameOver
 
 ; move.asm
 extrn movimiento:byte
@@ -47,13 +47,14 @@ extrn PrintMessage:far
 	null12 					db 0
 	bonusPath            	db "../src/audio/bn.wav"
 	null13 					db 0
+	gemeO    				db "../src/audio/GO.wav"
+	null11 					db 0
 	is_open_error           db ?
     is_read_error           db ?
     open_error_message      db "Error opening file!", '$'
     read_error_message      db "Error reading file!", '$'
 	filehandle dw 0          ; Handle del archivo
     bufferAudio db 0              ; Increase the bufferAudio size to 1 byte
-
     delayAudio dw 20 
 
 .code
@@ -73,6 +74,15 @@ playBonus proc far
 	call PlayMusic
 ret
 playBonus endp
+
+playGameOver proc far
+
+	mov filehandle,0
+	lea dx, gemeO
+	call PlayMusic
+ret
+playGameOver endp
+
 
 loadPattern proc near
 	mov bx, 10

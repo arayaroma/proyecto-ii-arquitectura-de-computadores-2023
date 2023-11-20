@@ -14,7 +14,7 @@ public scorePlayer, player_score_value
 extrn OpenFile:far, getNextLine:far, CloseFile:far, driverValidate:far
 
 ; move.asm
-extrn move:far, playHit:far, playBonus:far
+extrn move:far, playHit:far, playBonus:far, playGameOver:far
 
 ; mouse.asm
 extrn ShowMouse:far, SetMousePosition:far, GetKeyPressed:far
@@ -438,6 +438,7 @@ lostLiveProc proc near
     jmp endLostLive
 
 endGame:
+    call playGameOver
     call CloseFile
     call game_over
     
@@ -517,6 +518,7 @@ isPlayAudio proc
     je playBon
     jmp endPlayAudio
     playHi:
+
         call playHit
         mov is_hit, 0
         jmp endPlayAudio
@@ -682,11 +684,14 @@ playing:
 BoardDriver endp
 
 game_over proc near
+    
     call ClearScreen
     call driverValidate
     call clear_register
 
     call PrintGameOverMessage
+    
+    
     call GetKeyPressed
     call MenuDriver
 ret
