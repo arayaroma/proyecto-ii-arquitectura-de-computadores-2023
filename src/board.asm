@@ -84,12 +84,24 @@ clearPatter proc
         loop loopClear
     mov scorePlayer, 0
     lea si,player_score_value
+    lea di,nave
     mov cx,10
     loopClear2:
         mov al, ' '
+        mov [si], al
         mov [di], al
         inc di
+        inc si
         loop loopClear2
+    mov nave[5],'n'
+    lea si, collision
+    mov cx,10
+    loopClear3:
+        mov al, ' '
+        mov [si], al
+        inc si
+        loop loopClear3
+    mov posNave, 6
 ret
 clearPatter endp
 
