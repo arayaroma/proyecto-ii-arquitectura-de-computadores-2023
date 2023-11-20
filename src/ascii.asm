@@ -10,7 +10,6 @@ ascii_buffer db 12 dup(0)
 
 .code
 
-
 ; DisplayASCII:     Displays an ASCII character
 ;
 ; Input:            AL = ASCII character to display

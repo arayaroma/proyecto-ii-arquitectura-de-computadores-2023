@@ -91,18 +91,17 @@ GetMousePosition proc far
 GetMousePosition endp
 
 delayClickMause proc far
-
-  mov cx,6
-    delayClick:
-        push cx
-        mov cx,60000
-        delayClick2:
-        loop delayClick2
-        pop cx
+    mov cx, 6
+delayClick:
+    push cx
+    mov cx, 60000
+delayClick2:
+    loop delayClick2
+    pop cx
     loop delayClick
-
     ret 
 delayClickMause endp
+
 ; SetMousePosition
 ;
 ; int 10H

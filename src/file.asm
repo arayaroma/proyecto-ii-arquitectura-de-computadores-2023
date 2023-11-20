@@ -14,8 +14,7 @@ extrn movimiento:byte
 extrn nombre:byte
 
 ; mouse.asm
-extrn ShowMouse:far
-extrn SetMousePosition:far
+extrn ShowMouse:far, SetMousePosition:far
 
 ; graphics.asm
 extrn PrintMessage:far

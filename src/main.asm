@@ -17,10 +17,7 @@ endm
    mov ax, @DATA
    mov ds, ax
    call configAudio
-
-   ; mov ah, 0
-   ; int 16h
-  call MenuDriver
+   call MenuDriver
    exit
 
 end

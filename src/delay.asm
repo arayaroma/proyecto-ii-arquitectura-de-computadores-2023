@@ -1,7 +1,10 @@
+; delay.asm
+; author: franscisco
+;
+.8086
 .model SMALL
 public delay
 .data
-
 
 .code
 

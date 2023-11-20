@@ -1,18 +1,20 @@
+; move.asm
+; author: francisco
+;
+.8086
 .model SMALL
 extrn pattern:byte, collision:byte
-public movimiento
-public move
+public movimiento, move
+
 .data
-movimiento db 10 dup(" "),"$"
+    movimiento db 10 dup(" "),"$"
 
 .code
 
 move proc far
     push ax cx 
-
-lea SI, pattern
-
-XOR CX,CX
+    lea SI, pattern
+    XOR CX,CX
 
 goend:
 inc si
@@ -33,7 +35,6 @@ mov cx, 10
     loop setCollision
 pop cx
 sub si, 11
-
 
 ciclo:
     mov al,[si]
@@ -62,7 +63,5 @@ fin2:
     pop cx ax
     ret
 move endp
-
-
 
 end

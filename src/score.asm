@@ -1,5 +1,6 @@
 ; score.asm
 ; author: arayaroma
+; author: jesus abarca
 ;
 .8086
 .model small
